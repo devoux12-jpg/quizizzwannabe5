@@ -26,11 +26,16 @@
         .radio-custom + label {
             transition: all 0.2s ease-in-out;
         }
+        /* Style untuk Papan Peringkat */
+        .leaderboard-table th {
+            @apply px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+        }
+        .leaderboard-table td {
+             @apply px-4 py-3 whitespace-nowrap text-sm text-gray-700;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 flex flex-col items-center justify-center min-h-screen">
-
-   
 
     <div class="container mx-auto p-4 max-w-2xl w-full">
         <div class="bg-white p-8 rounded-2xl shadow-lg transition-all duration-500">
@@ -45,6 +50,10 @@
                     </button>
                     <div class="border-t border-gray-200 my-2"></div>
                     <h2 class="text-lg font-semibold text-center text-gray-600">Kerjakan Ujian</h2>
+                    
+                    <!-- Input Nama Peserta -->
+                    <input type="text" id="nama-peserta-input" placeholder="Masukkan Nama Anda" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    
                     <input type="text" id="password-input" placeholder="Masukkan Kata Sandi Ujian" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button id="start-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
                         Mulai Kerjakan
@@ -52,7 +61,7 @@
                 </div>
             </div>
 
-            <!-- Tampilan Buat Ujian -->
+            <!-- Tampilan Buat Ujian (dengan fitur Edit/Hapus) -->
             <div id="create-exam-view" class="view">
                 <h1 class="text-2xl font-bold mb-6 text-gray-700">Formulir Pembuatan Soal</h1>
                 <div class="space-y-4">
@@ -70,12 +79,15 @@
                     </select>
                 </div>
                 <div class="flex gap-4 mt-6">
+                     <!-- Tombol ini akan berubah teks/fungsi saat mode edit aktif -->
                      <button id="add-question-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Tambah Soal</button>
                      <button id="finish-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Selesai & Buat Ujian</button>
                 </div>
                  <div class="mt-6">
-                    <h3 class="font-semibold text-gray-600">Soal Ditambahkan: <span id="question-count">0</span></h3>
-                    <ul id="questions-list" class="list-decimal list-inside mt-2 text-gray-500"></ul>
+                    <h3 class="font-semibold text-gray-600">Total Soal: <span id="question-count">0</span></h3>
+                    <ul id="questions-list" class="space-y-2 mt-2">
+                        <!-- Soal yang ditambahkan akan muncul di sini -->
+                    </ul>
                 </div>
                 <button class="mt-4 text-sm text-gray-500 hover:text-blue-500" onclick="showView('initial-view')">&larr; Kembali ke Menu Utama</button>
             </div>
@@ -122,6 +134,31 @@
                     </div>
                   </div>
                 </div>
+                <button id="show-leaderboard-btn" class="mt-4 w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
+                    Lihat Papan Peringkat Ujian
+                </button>
+                <button class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
+            </div>
+            
+             <!-- Tampilan Papan Peringkat -->
+            <div id="leaderboard-view" class="view">
+                <h1 class="text-2xl font-bold text-gray-700 mb-4 text-center">Papan Peringkat</h1>
+                <p class="text-center text-gray-500 mb-4">Ujian: <span id="leaderboard-password-display" class="font-semibold text-gray-700"></span></p>
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200 leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Ranking</th>
+                                <th>Nama Peserta</th>
+                                <th>Skor (%)</th>
+                                <th>Jawaban Benar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Data Ranking akan dimasukkan di sini oleh JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
                 <button class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
         </div>
@@ -151,61 +188,10 @@
     </div>
 
     <script>
-        // --- SUPABASE SETUP ---
-        // GANTI DENGAN URL DAN KUNCI ANON ANDA DARI SUPABASE
-        const SUPABASE_URL = '';
-        const SUPABASE_KEY = '';
-        
-        let db;
-        const { createClient } = supabase;
-
-        // Langsung inisialisasi client
-        try {
-            db = createClient(SUPABASE_URL, SUPABASE_KEY);
-            if (!db) {
-                throw new Error("Supabase client creation failed silently.");
-            }
-            console.log("Supabase client initialized.");
-        } catch (error) {
-            console.error("Inisialisasi Supabase Gagal. Periksa URL dan Key.", error.message);
-            
-            // Jika inisialisasi gagal, nonaktifkan tombol-tombol utama
-            document.addEventListener('DOMContentLoaded', () => {
-                try {
-                    document.getElementById('start-exam-btn').disabled = true;
-                    document.getElementById('finish-exam-btn').disabled = true;
-                    document.getElementById('start-exam-btn').textContent = 'Konfigurasi Gagal';
-                    document.getElementById('show-create-exam-btn').disabled = true;
-                } catch(e) {
-                    console.error("Tidak dapat menonaktifkan tombol.", e);
-                }
-            });
-        }
-        // --- END SUPABASE SETUP ---
-
-
-        // Database sementara untuk *soal yang sedang dibuat*
-        let currentQuestions = [];
-        // Data untuk ujian yang *sedang dikerjakan*
-        let currentExamData = [];
-        let userAnswers = {};
-        let currentQuestionIndex = 0;
-
-        // Elemen-elemen DOM
-        const views = document.querySelectorAll('.view');
-        const showCreateExamBtn = document.getElementById('show-create-exam-btn');
-        const startExamBtn = document.getElementById('start-exam-btn');
-        const addQuestionBtn = document.getElementById('add-question-btn');
-        const finishExamBtn = document.getElementById('finish-exam-btn');
-        const nextQuestionBtn = document.getElementById('next-question-btn');
-        const prevQuestionBtn = document.getElementById('prev-question-btn');
-        const submitExamBtn = document.getElementById('submit-exam-btn');
-
-        // --- Modal ---
+        // --- Modal Functions (Didefinisikan lebih dulu) ---
         const modal = document.getElementById('custom-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalMessage = document.getElementById('modal-message');
-        const modalButtons = document.getElementById('modal-buttons');
         const modalOkBtn = document.getElementById('modal-ok-btn');
         const modalConfirmBtn = document.getElementById('modal-confirm-btn');
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
@@ -250,38 +236,92 @@
                 confirmCallback = null;
             }
         });
-        // --- End Modal ---
+        // --- End Modal Functions ---
+
+        // =====================================================================
+        // --- SUPABASE SETUP ---
+        // PENTING: GANTI DUA VARIABEL DI BAWAH INI DENGAN KREDENSIAL SUPABASE ANDA YANG ASLI
+        const SUPABASE_URL = 'https://wkzufxtjtpnqbbecbjht.supabase.co'; // <--- UBAH BARIS INI
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrenVmeHRqdHBucWJiZWNiamh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3MzU4NjgsImV4cCI6MjA3ODMxMTg2OH0.50KwsV4kx_9XQ_sD2HJyCF2qGdl71Xs_t1PUv0DxiB0'; // <--- UBAH BARIS INI
+        // =====================================================================
+        
+        let db;
+        let isSupabaseReady = false;
+        const { createClient } = supabase;
+
+        try {
+            db = createClient(SUPABASE_URL, SUPABASE_KEY);
+            if (!db || SUPABASE_URL.includes('dummy') || SUPABASE_KEY.includes('dummy') || !SUPABASE_URL || !SUPABASE_KEY) {
+                 throw new Error("Kredensial belum diganti.");
+            }
+            isSupabaseReady = true;
+            console.log("Supabase client initialized.");
+        } catch (error) {
+            console.error("Inisialisasi Supabase Gagal. Periksa URL dan Key.", error.message);
+            document.addEventListener('DOMContentLoaded', () => {
+                showModal("PENTING: Gagal terhubung ke Supabase. Aplikasi hanya akan bekerja setelah Anda mengganti 'SUPABASE_URL' dan 'SUPABASE_KEY' di kode sumber dengan kredensial Anda.");
+            });
+        }
+        // --- END SUPABASE SETUP ---
+
+        // Database sementara untuk *soal yang sedang dibuat*
+        let currentQuestions = [];
+        let editingIndex = -1; // -1 berarti mode tambah, >= 0 berarti indeks soal yang sedang diedit
+
+        // Data untuk ujian yang *sedang dikerjakan*
+        let currentExamData = [];
+        let userAnswers = {};
+        let currentQuestionIndex = 0;
+        
+        // Data state untuk peserta
+        let currentExamPassword = '';
+        let currentParticipantName = '';
+
+        // Elemen-elemen DOM
+        const views = document.querySelectorAll('.view');
+        const addQuestionBtn = document.getElementById('add-question-btn');
+        const questionInput = document.getElementById('question-input');
+        const optionAInput = document.getElementById('option-a');
+        const optionBInput = document.getElementById('option-b');
+        const optionCInput = document.getElementById('option-c');
+        const optionDInput = document.getElementById('option-d');
+        const correctAnswerSelect = document.getElementById('correct-answer');
 
         // Fungsi untuk menavigasi antar tampilan
         function showView(viewId) {
             views.forEach(view => view.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            // Reset state saat kembali ke menu utama
+            
             if (viewId === 'initial-view') {
+                // Reset semua state
                 currentQuestions = [];
                 currentExamData = [];
                 userAnswers = {};
                 currentQuestionIndex = 0;
-                document.getElementById('question-count').textContent = '0';
-                document.getElementById('questions-list').innerHTML = '';
-                document.getElementById('password-input').value = '';
+                currentExamPassword = ''; 
+                currentParticipantName = ''; 
+                editingIndex = -1; 
+                renderQuestionsList(); 
+                resetQuestionForm(); 
                 
-                // Reset tombol loading (jika ada)
-                startExamBtn.disabled = false;
-                startExamBtn.textContent = 'Mulai Kerjakan';
-                finishExamBtn.disabled = false;
-                finishExamBtn.textContent = 'Selesai & Buat Ujian';
+                // Reset tombol loading
+                document.getElementById('start-exam-btn').disabled = !isSupabaseReady;
+                document.getElementById('start-exam-btn').textContent = 'Mulai Kerjakan';
+                document.getElementById('finish-exam-btn').disabled = false;
+                document.getElementById('finish-exam-btn').textContent = 'Selesai & Buat Ujian';
+                document.getElementById('password-input').value = '';
+                document.getElementById('nama-peserta-input').value = ''; 
             }
         }
         
         // Fungsi validasi form pembuatan soal
         function validateQuestionForm() {
-            const question = document.getElementById('question-input').value.trim();
-            const optA = document.getElementById('option-a').value.trim();
-            const optB = document.getElementById('option-b').value.trim();
-            const optC = document.getElementById('option-c').value.trim();
-            const optD = document.getElementById('option-d').value.trim();
-            const correct = document.getElementById('correct-answer').value;
+            const question = questionInput.value.trim();
+            const optA = optionAInput.value.trim();
+            const optB = optionBInput.value.trim();
+            const optC = optionCInput.value.trim(); 
+            const optD = optionDInput.value.trim();
+            const correct = correctAnswerSelect.value;
 
             if (!question || !optA || !optB || !optC || !optD || !correct) {
                 showModal('Harap isi semua kolom pertanyaan dan jawaban, serta pilih jawaban yang benar.');
@@ -292,51 +332,127 @@
         
         // Fungsi untuk mereset form pembuatan soal
         function resetQuestionForm() {
-            document.getElementById('question-input').value = '';
-            document.getElementById('option-a').value = '';
-            document.getElementById('option-b').value = '';
-            document.getElementById('option-c').value = '';
-            document.getElementById('option-d').value = '';
-            document.getElementById('correct-answer').value = '';
+            questionInput.value = '';
+            optionAInput.value = '';
+            optionBInput.value = '';
+            optionCInput.value = '';
+            optionDInput.value = '';
+            correctAnswerSelect.value = '';
+            editingIndex = -1;
+            addQuestionBtn.textContent = 'Tambah Soal';
+            addQuestionBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
+            addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
         }
 
-        // Event listener untuk tombol-tombol
-        showCreateExamBtn.addEventListener('click', () => showView('create-exam-view'));
+        // Fungsi untuk merender daftar soal yang telah ditambahkan
+        function renderQuestionsList() {
+            const list = document.getElementById('questions-list');
+            list.innerHTML = '';
+            document.getElementById('question-count').textContent = currentQuestions.length;
 
-        addQuestionBtn.addEventListener('click', () => {
-            const newQuestion = validateQuestionForm();
-            if (newQuestion) {
-                currentQuestions.push(newQuestion);
-                document.getElementById('question-count').textContent = currentQuestions.length;
+            currentQuestions.forEach((q, index) => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${currentQuestions.length}. ${newQuestion.question.substring(0, 30)}...`;
-                document.getElementById('questions-list').appendChild(listItem);
+                listItem.className = 'flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 my-2 bg-gray-50 rounded-xl border border-gray-200';
+                listItem.innerHTML = `
+                    <span class="text-gray-700 font-medium flex-1 mb-2 sm:mb-0 mr-4">
+                        <span class="font-bold text-blue-600">${index + 1}.</span> ${q.question.substring(0, 70)}${q.question.length > 70 ? '...' : ''}
+                    </span>
+                    <div class="space-x-2 flex-shrink-0">
+                        <button onclick="editQuestion(${index})" class="text-sm text-blue-500 hover:text-blue-700 font-semibold px-2 py-1 rounded-md border border-blue-500 hover:bg-blue-50">Edit</button>
+                        <button onclick="deleteQuestion(${index})" class="text-sm text-red-500 hover:text-red-700 font-semibold px-2 py-1 rounded-md border border-red-500 hover:bg-red-50">Hapus</button>
+                    </div>
+                `;
+                list.appendChild(listItem);
+            });
+        }
+        window.deleteQuestion = deleteQuestion; // Ekspos ke global scope
+        window.editQuestion = editQuestion; // Ekspos ke global scope
+        
+        // --- LOGIKA EDIT & HAPUS SOAL ---
+
+        function editQuestion(index) {
+            const q = currentQuestions[index];
+            questionInput.value = q.question;
+            optionAInput.value = q.options.A;
+            optionBInput.value = q.options.B;
+            optionCInput.value = q.options.C;
+            optionDInput.value = q.options.D;
+            correctAnswerSelect.value = q.correct;
+
+            editingIndex = index;
+            addQuestionBtn.textContent = 'Simpan Perubahan Soal';
+            addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            addQuestionBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
+
+            // Gulir ke atas ke formulir
+            document.getElementById('create-exam-view').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteQuestion(index) {
+            showConfirm('Apakah Anda yakin ingin menghapus soal ini?', (confirmed) => {
+                if (confirmed) {
+                    currentQuestions.splice(index, 1);
+                    renderQuestionsList();
+                    // Jika soal yang sedang diedit dihapus, reset form
+                    if (editingIndex === index) {
+                         resetQuestionForm(); 
+                    }
+                    // Perlu cek dan update editingIndex jika indeks yang lebih tinggi dihapus
+                    if (editingIndex > index) {
+                        editingIndex--;
+                    }
+                }
+            });
+        }
+
+        // --- Event Listener Tombol Tambah/Simpan Perubahan ---
+        addQuestionBtn.addEventListener('click', () => {
+            const questionData = validateQuestionForm();
+            if (questionData) {
+                if (editingIndex === -1) {
+                    // Mode Tambah Baru
+                    currentQuestions.push(questionData);
+                } else {
+                    // Mode Simpan Perubahan (Edit)
+                    currentQuestions[editingIndex] = questionData;
+                }
+                renderQuestionsList();
                 resetQuestionForm();
             }
         });
 
-        // (MODIFIED) Menyimpan ujian ke Supabase
-        finishExamBtn.addEventListener('click', async () => {
+        // --- Event Listener Awal ---
+        document.getElementById('show-create-exam-btn').addEventListener('click', () => {
+            showView('create-exam-view');
+            // Pastikan tombol dalam mode Tambah saat masuk
+            resetQuestionForm();
+            renderQuestionsList();
+        });
+
+
+        // (SUPABASE) Menyimpan ujian
+        document.getElementById('finish-exam-btn').addEventListener('click', async () => {
+            if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
+            
             if (currentQuestions.length === 0) {
                 showModal('Silakan tambahkan setidaknya satu soal sebelum menyelesaikan.');
                 return;
             }
 
-            // Tampilkan loading
+            const finishExamBtn = document.getElementById('finish-exam-btn');
             finishExamBtn.disabled = true;
             finishExamBtn.textContent = 'Menyimpan...';
 
             const password = Math.random().toString(36).substring(2, 8).toUpperCase();
             
             const { data, error } = await db
-                .from('ujian') // 'ujian' adalah nama tabel Anda
+                .from('ujian') // 'ujian' adalah nama tabel Anda di Supabase
                 .insert({
                     password: password,
-                    questions: currentQuestions // Simpan sebagai JSONB
+                    questions: currentQuestions 
                 })
                 .select();
 
-            // Sembunyikan loading
             finishExamBtn.disabled = false;
             finishExamBtn.textContent = 'Selesai & Buat Ujian';
 
@@ -350,22 +466,26 @@
             showView('password-display-view');
         });
 
-        // (MODIFIED) Memulai ujian dari Supabase
-        startExamBtn.addEventListener('click', async () => {
+        // (SUPABASE) Memulai ujian
+        document.getElementById('start-exam-btn').addEventListener('click', async () => {
+             if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
+             
+            const participantName = document.getElementById('nama-peserta-input').value.trim();
             const password = document.getElementById('password-input').value.trim().toUpperCase();
-            if (!password) return;
+            
+            if (!participantName) { showModal('Harap masukkan Nama Anda.'); return; }
+            if (!password) { showModal('Harap masukkan Kata Sandi Ujian.'); return; }
 
-            // Tampilkan loading
+            const startExamBtn = document.getElementById('start-exam-btn');
             startExamBtn.disabled = true;
             startExamBtn.textContent = 'Mencari Ujian...';
 
             const { data, error } = await db
                 .from('ujian')
-                .select('questions') // Ambil hanya kolom questions
+                .select('questions, id') 
                 .eq('password', password)
-                .single(); // Ambil satu baris data
+                .maybeSingle(); 
 
-            // Sembunyikan loading
             startExamBtn.disabled = false;
             startExamBtn.textContent = 'Mulai Kerjakan';
 
@@ -375,17 +495,19 @@
                 return;
             }
             
-            // Simpan data ujian yang diambil ke variabel global
             currentExamData = data.questions; 
+            currentExamPassword = password;
+            currentParticipantName = participantName;
             currentQuestionIndex = 0;
             userAnswers = {};
+            
             renderQuestion();
             showView('take-exam-view');
         });
 
-        // (MODIFIED) Render pertanyaan dari 'currentExamData'
+        // Render pertanyaan
         function renderQuestion() {
-            const exam = currentExamData; // Menggunakan data yang sudah diambil
+            const exam = currentExamData; 
             const questionData = exam[currentQuestionIndex];
             
             document.getElementById('exam-question').textContent = questionData.question;
@@ -416,47 +538,49 @@
             document.getElementById('current-question-number').textContent = currentQuestionIndex + 1;
             document.getElementById('total-questions').textContent = exam.length;
 
-            prevQuestionBtn.disabled = currentQuestionIndex === 0;
-            prevQuestionBtn.classList.toggle('opacity-50', currentQuestionIndex === 0);
+            document.getElementById('prev-question-btn').disabled = currentQuestionIndex === 0;
+            document.getElementById('prev-question-btn').classList.toggle('opacity-50', currentQuestionIndex === 0);
             
-            nextQuestionBtn.classList.toggle('hidden', currentQuestionIndex === exam.length - 1);
-            submitExamBtn.classList.toggle('hidden', currentQuestionIndex !== exam.length - 1);
+            document.getElementById('next-question-btn').classList.toggle('hidden', currentQuestionIndex === exam.length - 1);
+            document.getElementById('submit-exam-btn').classList.toggle('hidden', currentQuestionIndex !== exam.length - 1);
         }
 
-        // (MODIFIED) Navigasi menggunakan 'currentExamData'
-        nextQuestionBtn.addEventListener('click', () => {
+        // Navigasi
+        document.getElementById('next-question-btn').addEventListener('click', () => {
             if (currentQuestionIndex < currentExamData.length - 1) {
                 currentQuestionIndex++;
                 renderQuestion();
             }
         });
 
-        prevQuestionBtn.addEventListener('click', () => {
+        document.getElementById('prev-question-btn').addEventListener('click', () => {
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 renderQuestion();
             }
         });
         
-        // (MODIFIED) Submit menggunakan 'currentExamData' dan 'showConfirm'
-        submitExamBtn.addEventListener('click', () => {
+        // Submit ujian
+        document.getElementById('submit-exam-btn').addEventListener('click', () => {
              if (Object.keys(userAnswers).length !== currentExamData.length) {
                 showConfirm('Anda belum menjawab semua pertanyaan. Apakah Anda yakin ingin mengumpulkan?', (confirmed) => {
                     if (confirmed) {
-                        calculateAndShowResults();
+                        saveAndShowResults();
                     }
                 });
             } else {
-                calculateAndShowResults();
+                saveAndShowResults();
             }
         });
         
-        // (MODIFIED) Kalkulasi hasil menggunakan 'currentExamData'
-        function calculateAndShowResults() {
-            const exam = currentExamData; // Menggunakan data yang sudah diambil
+        // (SUPABASE) Kalkulasi hasil dan menyimpan
+        async function saveAndShowResults() {
+             if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
+             
+            const exam = currentExamData; 
             let score = 0;
             exam.forEach((question, index) => {
-                if(userAnswers[index] === question.correct) {
+                if(userAnswers[index] && userAnswers[index] === question.correct) {
                     score++;
                 }
             });
@@ -464,10 +588,77 @@
             const total = exam.length;
             const percentage = total > 0 ? ((score / total) * 100).toFixed(0) : 0;
             
-            document.getElementById('score-text').textContent = `Nilai Anda: ${percentage}`;
+            // Simpan Hasil ke Supabase
+            const { error } = await db
+                .from('hasil_ujian') // 'hasil_ujian' adalah nama tabel Supabase Anda
+                .insert({
+                    nama_peserta: currentParticipantName,
+                    password_ujian: currentExamPassword,
+                    skor: score,
+                    total_soal: total
+                });
+
+            if (error) {
+                console.error('Gagal menyimpan hasil:', error);
+                showModal('Gagal menyimpan hasil ke database: ' + error.message);
+            }
+            
+            document.getElementById('score-text').textContent = `Nilai Anda: ${percentage}%`;
             document.getElementById('score-details').textContent = `Anda menjawab benar ${score} dari ${total} soal.`;
             showView('result-view');
         }
+        
+        // (SUPABASE) Memuat dan Menampilkan Papan Peringkat
+        document.getElementById('show-leaderboard-btn').addEventListener('click', async () => {
+             if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
+             
+            if (!currentExamPassword) {
+                 showModal('Terjadi kesalahan, password ujian tidak ditemukan.');
+                 return;
+            }
+            
+            const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
+            showLeaderboardBtn.disabled = true;
+            showLeaderboardBtn.textContent = 'Memuat Peringkat...';
+
+            document.getElementById('leaderboard-password-display').textContent = currentExamPassword;
+            
+            const { data, error } = await db
+                .from('hasil_ujian')
+                .select('nama_peserta, skor, total_soal')
+                .eq('password_ujian', currentExamPassword)
+                .order('skor', { ascending: false }); 
+
+            showLeaderboardBtn.disabled = false;
+            showLeaderboardBtn.textContent = 'Lihat Papan Peringkat Ujian';
+
+            if (error) {
+                console.error('Gagal memuat peringkat:', error);
+                showModal('Gagal memuat papan peringkat: ' + error.message);
+                return;
+            }
+            
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardBody.innerHTML = ''; 
+            
+            data.forEach((result, index) => {
+                const percentage = result.total_soal > 0 ? ((result.skor / result.total_soal) * 100).toFixed(0) : 0;
+                
+                const row = leaderboardBody.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                row.insertCell(1).textContent = result.nama_peserta;
+                row.insertCell(2).textContent = `${percentage}%`;
+                row.insertCell(3).textContent = `${result.skor} / ${result.total_soal}`;
+            });
+
+            showView('leaderboard-view');
+        });
+        
+        // Pastikan tombol awal dinonaktifkan jika Supabase belum siap
+         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('show-create-exam-btn').disabled = !isSupabaseReady;
+            document.getElementById('start-exam-btn').disabled = !isSupabaseReady;
+        });
 
     </script>
 </body>
