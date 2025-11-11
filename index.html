@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Ujian Online</title>
+    <title>Aplikasi Ujian Online (Soal Lokal)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Impor Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -40,6 +40,7 @@
     <div class="container mx-auto p-4 max-w-2xl w-full">
         <div class="bg-white p-8 rounded-2xl shadow-lg transition-all duration-500">
 
+
             <!-- Tampilan Awal -->
             <div id="initial-view" class="view active">
                 <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Selamat Datang!</h1>
@@ -49,14 +50,20 @@
                         Buat Ujian Baru
                     </button>
                     <div class="border-t border-gray-200 my-2"></div>
-                    <h2 class="text-lg font-semibold text-center text-gray-600">Kerjakan Ujian</h2>
                     
+                    <h2 class="text-lg font-semibold text-center text-gray-600">Kerjakan Ujian</h2>
                     <!-- Input Nama Peserta -->
                     <input type="text" id="nama-peserta-input" placeholder="Masukkan Nama Anda" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                    
                     <input type="text" id="password-input" placeholder="Masukkan Kata Sandi Ujian" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button id="start-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
                         Mulai Kerjakan
+                    </button>
+
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <h2 class="text-lg font-semibold text-center text-gray-600">Akses Peringkat (Publik)</h2>
+                    <input type="text" id="leaderboard-password-input" placeholder="Masukkan Kata Sandi Ujian untuk Peringkat" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <button id="access-leaderboard-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                        Lihat Papan Peringkat
                     </button>
                 </div>
             </div>
@@ -81,7 +88,7 @@
                 <div class="flex gap-4 mt-6">
                      <!-- Tombol ini akan berubah teks/fungsi saat mode edit aktif -->
                      <button id="add-question-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Tambah Soal</button>
-                     <button id="finish-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Selesai & Buat Ujian</button>
+                     <button id="finish-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Selesai & Buat Ujian (Lokal)</button>
                 </div>
                  <div class="mt-6">
                     <h3 class="font-semibold text-gray-600">Total Soal: <span id="question-count">0</span></h3>
@@ -94,12 +101,14 @@
 
             <!-- Tampilan Password Ujian -->
             <div id="password-display-view" class="view text-center">
-                <h1 class="text-2xl font-bold text-green-600 mb-4">Ujian Berhasil Dibuat!</h1>
-                <p class="text-gray-600 mb-4">Bagikan kata sandi ini kepada peserta ujian:</p>
-                <div class="bg-gray-100 p-4 rounded-lg inline-block border-2 border-dashed border-gray-300">
+                <h1 class="text-2xl font-bold text-green-600 mb-4">Ujian Berhasil Dibuat (Lokal)!</h1>
+                <p class="text-gray-600 mb-4">Bagikan **Kata Sandi Ujian** ini kepada peserta:</p>
+                <div class="bg-gray-100 p-4 rounded-lg inline-block border-2 border-dashed border-gray-300 mb-6">
                     <span id="generated-password" class="text-4xl font-mono font-bold tracking-widest text-gray-800"></span>
                 </div>
-                <p class="text-sm text-gray-500 mt-4">Peserta dapat menggunakan kata sandi ini di halaman utama.</p>
+                
+                <p class="text-sm text-gray-500 mt-4">Peserta dapat menggunakan kata sandi ini untuk mengerjakan ujian dan melihat papan peringkat.</p>
+                
                 <button class="mt-8 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
 
@@ -134,9 +143,8 @@
                     </div>
                   </div>
                 </div>
-                <button id="show-leaderboard-btn" class="mt-4 w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
-                    Lihat Papan Peringkat Ujian
-                </button>
+                
+                <button class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Lihat Papan Peringkat</button>
                 <button class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
             
@@ -239,7 +247,7 @@
         // --- End Modal Functions ---
 
         // =====================================================================
-        // --- SUPABASE SETUP ---
+        // --- SUPABASE SETUP (Hanya untuk Hasil Ujian/Peringkat) ---
         // PENTING: GANTI DUA VARIABEL DI BAWAH INI DENGAN KREDENSIAL SUPABASE ANDA YANG ASLI
         const SUPABASE_URL = 'https://wkzufxtjtpnqbbecbjht.supabase.co'; // <--- UBAH BARIS INI
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrenVmeHRqdHBucWJiZWNiamh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3MzU4NjgsImV4cCI6MjA3ODMxMTg2OH0.50KwsV4kx_9XQ_sD2HJyCF2qGdl71Xs_t1PUv0DxiB0'; // <--- UBAH BARIS INI
@@ -255,18 +263,19 @@
                  throw new Error("Kredensial belum diganti.");
             }
             isSupabaseReady = true;
-            console.log("Supabase client initialized.");
+            console.log("Supabase client initialized for RESULTS and LEADERBOARD.");
         } catch (error) {
             console.error("Inisialisasi Supabase Gagal. Periksa URL dan Key.", error.message);
             document.addEventListener('DOMContentLoaded', () => {
-                showModal("PENTING: Gagal terhubung ke Supabase. Aplikasi hanya akan bekerja setelah Anda mengganti 'SUPABASE_URL' dan 'SUPABASE_KEY' di kode sumber dengan kredensial Anda.");
+                showModal("PENTING: Gagal terhubung ke Supabase. Papan Peringkat hanya akan bekerja setelah Anda mengganti 'SUPABASE_URL' dan 'SUPABASE_KEY' di kode sumber dengan kredensial Anda.");
             });
         }
         // --- END SUPABASE SETUP ---
 
-        // Database sementara untuk *soal yang sedang dibuat*
+        // Database LOKAL untuk soal ujian (Hanya tersimpan di memori JavaScript)
         let currentQuestions = [];
-        let editingIndex = -1; // -1 berarti mode tambah, >= 0 berarti indeks soal yang sedang diedit
+        let editingIndex = -1; 
+        let localExams = {}; // Key: password, Value: questions array
 
         // Data untuk ujian yang *sedang dikerjakan*
         let currentExamData = [];
@@ -286,6 +295,9 @@
         const optionCInput = document.getElementById('option-c');
         const optionDInput = document.getElementById('option-d');
         const correctAnswerSelect = document.getElementById('correct-answer');
+        const accessLeaderboardBtn = document.getElementById('access-leaderboard-btn');
+        const leaderboardPasswordInput = document.getElementById('leaderboard-password-input');
+
 
         // Fungsi untuk menavigasi antar tampilan
         function showView(viewId) {
@@ -293,7 +305,7 @@
             document.getElementById(viewId).classList.add('active');
             
             if (viewId === 'initial-view') {
-                // Reset semua state
+                // Reset state yang tidak diperlukan di menu awal
                 currentQuestions = [];
                 currentExamData = [];
                 userAnswers = {};
@@ -304,14 +316,19 @@
                 renderQuestionsList(); 
                 resetQuestionForm(); 
                 
-                // Reset tombol loading
-                document.getElementById('start-exam-btn').disabled = !isSupabaseReady;
+                // Reset tombol loading dan input
+                document.getElementById('start-exam-btn').disabled = false;
                 document.getElementById('start-exam-btn').textContent = 'Mulai Kerjakan';
                 document.getElementById('finish-exam-btn').disabled = false;
-                document.getElementById('finish-exam-btn').textContent = 'Selesai & Buat Ujian';
+                document.getElementById('finish-exam-btn').textContent = 'Selesai & Buat Ujian (Lokal)';
                 document.getElementById('password-input').value = '';
-                document.getElementById('nama-peserta-input').value = ''; 
+                document.getElementById('nama-peserta-input').value = '';
+                leaderboardPasswordInput.value = ''; 
             }
+             if (viewId === 'result-view' && currentExamPassword) {
+                 // Ketika kembali ke initial view dari hasil, langsung isi password untuk memudahkan cek peringkat
+                leaderboardPasswordInput.value = currentExamPassword;
+             }
         }
         
         // Fungsi validasi form pembuatan soal
@@ -430,9 +447,8 @@
         });
 
 
-        // (SUPABASE) Menyimpan ujian
+        // (LOKAL) Menyimpan ujian
         document.getElementById('finish-exam-btn').addEventListener('click', async () => {
-            if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
             
             if (currentQuestions.length === 0) {
                 showModal('Silakan tambahkan setidaknya satu soal sebelum menyelesaikan.');
@@ -441,34 +457,22 @@
 
             const finishExamBtn = document.getElementById('finish-exam-btn');
             finishExamBtn.disabled = true;
-            finishExamBtn.textContent = 'Menyimpan...';
+            finishExamBtn.textContent = 'Menyimpan Lokal...';
 
             const password = Math.random().toString(36).substring(2, 8).toUpperCase();
             
-            const { data, error } = await db
-                .from('ujian') // 'ujian' adalah nama tabel Anda di Supabase
-                .insert({
-                    password: password,
-                    questions: currentQuestions 
-                })
-                .select();
-
+            // Simpan soal ke memori lokal
+            localExams[password] = currentQuestions;
+            
             finishExamBtn.disabled = false;
-            finishExamBtn.textContent = 'Selesai & Buat Ujian';
-
-            if (error) {
-                console.error('Error saving exam:', error);
-                showModal('Gagal menyimpan ujian: ' + error.message);
-                return;
-            }
+            finishExamBtn.textContent = 'Selesai & Buat Ujian (Lokal)';
 
             document.getElementById('generated-password').textContent = password;
             showView('password-display-view');
         });
 
-        // (SUPABASE) Memulai ujian
+        // (LOKAL) Memulai ujian
         document.getElementById('start-exam-btn').addEventListener('click', async () => {
-             if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
              
             const participantName = document.getElementById('nama-peserta-input').value.trim();
             const password = document.getElementById('password-input').value.trim().toUpperCase();
@@ -480,22 +484,18 @@
             startExamBtn.disabled = true;
             startExamBtn.textContent = 'Mencari Ujian...';
 
-            const { data, error } = await db
-                .from('ujian')
-                .select('questions, id') 
-                .eq('password', password)
-                .maybeSingle(); 
+            // Cek di penyimpanan lokal (JavaScript Memory)
+            const examData = localExams[password];
 
             startExamBtn.disabled = false;
             startExamBtn.textContent = 'Mulai Kerjakan';
 
-            if (error || !data) {
-                console.error('Error fetching exam:', error);
-                showModal('Kata sandi ujian tidak valid atau tidak ditemukan.');
+            if (!examData) {
+                showModal('Kata sandi ujian tidak valid atau ujian tidak ditemukan (pastikan Anda belum me-refresh halaman).');
                 return;
             }
             
-            currentExamData = data.questions; 
+            currentExamData = examData; 
             currentExamPassword = password;
             currentParticipantName = participantName;
             currentQuestionIndex = 0;
@@ -573,9 +573,9 @@
             }
         });
         
-        // (SUPABASE) Kalkulasi hasil dan menyimpan
+        // (SUPABASE) Kalkulasi hasil dan menyimpan ke hasil_ujian
         async function saveAndShowResults() {
-             if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
+             if (!isSupabaseReady) { showModal('Papan Peringkat tidak akan bekerja. Harap ganti kredensial Supabase.'); return; }
              
             const exam = currentExamData; 
             let score = 0;
@@ -609,42 +609,36 @@
         }
         
         // (SUPABASE) Memuat dan Menampilkan Papan Peringkat
-        document.getElementById('show-leaderboard-btn').addEventListener('click', async () => {
-             if (!isSupabaseReady) { showModal('Aplikasi belum siap. Harap ganti kredensial Supabase.'); return; }
+        async function loadLeaderboard(examPassword) {
+             if (!isSupabaseReady) { showModal('Gagal terhubung ke Supabase. Tidak dapat memuat papan peringkat.'); return; }
              
-            if (!currentExamPassword) {
-                 showModal('Terjadi kesalahan, password ujian tidak ditemukan.');
-                 return;
-            }
-            
-            const showLeaderboardBtn = document.getElementById('show-leaderboard-btn');
-            showLeaderboardBtn.disabled = true;
-            showLeaderboardBtn.textContent = 'Memuat Peringkat...';
-
-            document.getElementById('leaderboard-password-display').textContent = currentExamPassword;
-            
-            const { data, error } = await db
+            const { data: results, error: resultsError } = await db
                 .from('hasil_ujian')
                 .select('nama_peserta, skor, total_soal')
-                .eq('password_ujian', currentExamPassword)
+                .eq('password_ujian', examPassword)
                 .order('skor', { ascending: false }); 
 
-            showLeaderboardBtn.disabled = false;
-            showLeaderboardBtn.textContent = 'Lihat Papan Peringkat Ujian';
-
-            if (error) {
-                console.error('Gagal memuat peringkat:', error);
-                showModal('Gagal memuat papan peringkat: ' + error.message);
+            if (resultsError) {
+                console.error('Gagal memuat peringkat:', resultsError);
+                showModal('Gagal memuat papan peringkat: ' + resultsError.message);
                 return;
             }
             
+            document.getElementById('leaderboard-password-display').textContent = examPassword;
             const leaderboardBody = document.getElementById('leaderboard-body');
             leaderboardBody.innerHTML = ''; 
             
-            data.forEach((result, index) => {
+            results.forEach((result, index) => {
                 const percentage = result.total_soal > 0 ? ((result.skor / result.total_soal) * 100).toFixed(0) : 0;
                 
                 const row = leaderboardBody.insertRow();
+                // Terapkan styling untuk peringkat 1-3
+                let rankClass = '';
+                if (index === 0) rankClass = 'bg-yellow-100 font-bold';
+                else if (index === 1) rankClass = 'bg-gray-200 font-semibold';
+                else if (index === 2) rankClass = 'bg-amber-100';
+                row.className = rankClass;
+
                 row.insertCell(0).textContent = index + 1;
                 row.insertCell(1).textContent = result.nama_peserta;
                 row.insertCell(2).textContent = `${percentage}%`;
@@ -652,12 +646,42 @@
             });
 
             showView('leaderboard-view');
+        }
+        
+        // (LOKAL + SUPABASE) Logika Akses Peringkat
+        accessLeaderboardBtn.addEventListener('click', async () => {
+             if (!isSupabaseReady) { showModal('Papan Peringkat tidak akan bekerja. Harap ganti kredensial Supabase.'); return; }
+             
+            const examPassword = leaderboardPasswordInput.value.trim().toUpperCase();
+
+            if (!examPassword) {
+                showModal('Harap masukkan Kata Sandi Ujian untuk melihat peringkat.');
+                return;
+            }
+
+            // 1. Verifikasi apakah ujian ini ada di memori lokal (HARUS ADA untuk memuat peringkat)
+            if (!localExams[examPassword]) {
+                showModal('Kata sandi ujian tidak ditemukan di memori lokal (Ujian harus dibuat terlebih dahulu sebelum peringkat dapat dilihat, dan halaman belum boleh di-refresh).');
+                return;
+            }
+
+            accessLeaderboardBtn.disabled = true;
+            accessLeaderboardBtn.textContent = 'Memuat Peringkat...';
+            
+            // 2. Jika ujian ada, muat peringkat dari Supabase
+            await loadLeaderboard(examPassword);
+            
+            accessLeaderboardBtn.disabled = false;
+            accessLeaderboardBtn.textContent = 'Lihat Papan Peringkat';
         });
         
-        // Pastikan tombol awal dinonaktifkan jika Supabase belum siap
+        // Pastikan tombol awal dinonaktifkan jika Supabase belum siap (hanya tombol yang bergantung pada DB)
          document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('show-create-exam-btn').disabled = !isSupabaseReady;
-            document.getElementById('start-exam-btn').disabled = !isSupabaseReady;
+            // Tombol buat ujian dan mulai ujian tidak bergantung pada DB lagi
+            document.getElementById('show-create-exam-btn').disabled = false;
+            document.getElementById('start-exam-btn').disabled = false;
+            // Tombol akses peringkat bergantung pada DB untuk fetch hasil
+            document.getElementById('access-leaderboard-btn').disabled = !isSupabaseReady;
         });
 
     </script>
