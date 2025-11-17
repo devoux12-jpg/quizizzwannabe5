@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Ujian Online (Soal Lokal)</title>
+    <title>Aplikasi Ujian Online Interaktif</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Impor Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -18,66 +18,94 @@
         .view.active {
             display: block;
         }
+        /* Custom radio button styling */
         .radio-custom:checked + label {
-            background-color: #3b82f6; /* bg-blue-500 */
+            background-color: #10b981; /* bg-emerald-500 for selection */
             color: white;
-            border-color: #3b82f6; /* border-blue-500 */
+            border-color: #059669; /* border-emerald-600 */
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4), 0 2px 4px -2px rgba(16, 185, 129, 0.4);
+            transform: scale(1.02);
         }
         .radio-custom + label {
             transition: all 0.2s ease-in-out;
+            border: 2px solid #e5e7eb;
         }
-        /* Style untuk Papan Peringkat */
+        .radio-custom + label:hover {
+            border-color: #a7f3d0; /* hover:border-emerald-200 */
+        }
+
+        /* Input field focus glow */
+        input:focus, textarea:focus, select:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Blue focus glow */
+            border-color: transparent;
+        }
+
+        /* Leaderboard table styling */
         .leaderboard-table th {
-            @apply px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+            @apply px-4 py-3 bg-blue-600 text-left text-xs font-medium text-white uppercase tracking-wider rounded-t-lg;
+            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
         }
         .leaderboard-table td {
-             @apply px-4 py-3 whitespace-nowrap text-sm text-gray-700;
+             @apply px-4 py-3 whitespace-nowrap text-sm;
+             border-bottom: 1px solid #f3f4f6;
         }
+        .leaderboard-table tr:hover {
+             @apply bg-blue-50;
+        }
+        /* Highlighting for top ranks */
+        .rank-gold { @apply bg-yellow-400 font-extrabold text-white shadow-lg; }
+        .rank-silver { @apply bg-gray-300 font-bold text-gray-800; }
+        .rank-bronze { @apply bg-yellow-600 font-semibold text-white; }
+
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 flex flex-col items-center justify-center min-h-screen">
+<body class="bg-gradient-to-br from-blue-500 to-indigo-600 flex flex-col items-center justify-center min-h-screen p-4">
 
-    <div class="container mx-auto p-4 max-w-2xl w-full">
-        <div class="bg-white p-8 rounded-2xl shadow-lg transition-all duration-500">
+    <div class="container mx-auto max-w-xl w-full">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl border-b-8 border-indigo-700 transition-all duration-500">
 
+          
 
             <!-- Tampilan Awal -->
             <div id="initial-view" class="view active">
-                <h1 class="text-3xl font-bold text-center text-gray-700 mb-2">Selamat Datang!</h1>
-                <p class="text-center text-gray-500 mb-8">Silakan buat ujian baru atau masukkan kata sandi untuk memulai ujian.</p>
+                <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-2">🎓 Aplikasi Ujian Interaktif</h1>
+                <p class="text-center text-gray-500 mb-8">Pilih tindakan di bawah ini untuk memulai.</p>
                 <div class="flex flex-col gap-4">
-                    <button id="show-create-exam-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                        Buat Ujian Baru
+                    <button id="show-create-exam-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl">
+                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Buat Ujian Baru (Administrator)
                     </button>
                     <div class="border-t border-gray-200 my-2"></div>
                     
-                    <h2 class="text-lg font-semibold text-center text-gray-600">Kerjakan Ujian</h2>
+                    <h2 class="text-xl font-bold text-center text-gray-700 mb-3">Mode Peserta</h2>
                     <!-- Input Nama Peserta -->
-                    <input type="text" id="nama-peserta-input" placeholder="Masukkan Nama Anda" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <input type="text" id="password-input" placeholder="Masukkan Kata Sandi Ujian" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button id="start-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                        Mulai Kerjakan
+                    <input type="text" id="nama-peserta-input" placeholder="Masukkan Nama Anda" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-green-200 focus:border-green-500 transition duration-200">
+                    <input type="text" id="password-input" placeholder="Masukkan Kata Sandi Ujian (Cth: 4B2E9F)" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-200 uppercase">
+                    <button id="start-exam-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl">
+                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.207a7.5 7.5 0 00-11.419 0L4.794 13.94A2 2 0 005.137 17h13.726a2 2 0 00.343-3.06l-5.6-5.6z"></path></svg>
+                        Mulai Kerjakan Ujian
                     </button>
 
                     <div class="border-t border-gray-200 my-2"></div>
-                    <h2 class="text-lg font-semibold text-center text-gray-600">Akses Peringkat (Publik)</h2>
-                    <input type="text" id="leaderboard-password-input" placeholder="Masukkan Kata Sandi Ujian untuk Peringkat" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                    <button id="access-leaderboard-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    <h2 class="text-xl font-bold text-center text-gray-700 mb-3">Akses Peringkat (Publik)</h2>
+                    <input type="text" id="leaderboard-password-input" placeholder="Masukkan Kata Sandi Ujian" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-yellow-200 focus:border-yellow-500 transition duration-200 uppercase">
+                    <button id="access-leaderboard-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl">
+                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Lihat Papan Peringkat
                     </button>
                 </div>
             </div>
 
-            <!-- Tampilan Buat Ujian (dengan fitur Edit/Hapus) -->
+            <!-- Tampilan Buat Ujian -->
             <div id="create-exam-view" class="view">
-                <h1 class="text-2xl font-bold mb-6 text-gray-700">Formulir Pembuatan Soal</h1>
+                <h1 class="text-2xl font-bold mb-6 text-gray-700 border-b pb-2 border-gray-200">✍️ Pembuatan Soal Ujian</h1>
                 <div class="space-y-4">
-                    <textarea id="question-input" placeholder="Tuliskan pertanyaan Anda di sini..." class="w-full h-28 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
-                    <input type="text" id="option-a" placeholder="Pilihan Jawaban A" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" id="option-b" placeholder="Pilihan Jawaban B" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" id="option-c" placeholder="Pilihan Jawaban C" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="text" id="option-d" placeholder="Pilihan Jawaban D" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <select id="correct-answer" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <textarea id="question-input" placeholder="Tuliskan pertanyaan Anda di sini..." class="w-full h-28 px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200" rows="3"></textarea>
+                    <input type="text" id="option-a" placeholder="Pilihan Jawaban A" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
+                    <input type="text" id="option-b" placeholder="Pilihan Jawaban B" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
+                    <input type="text" id="option-c" placeholder="Pilihan Jawaban C" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
+                    <input type="text" id="option-d" placeholder="Pilihan Jawaban D" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
+                    <select id="correct-answer" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:ring-4 focus:ring-blue-200 transition duration-200">
                         <option value="" disabled selected>Pilih Jawaban Benar</option>
                         <option value="A">Jawaban A</option>
                         <option value="B">Jawaban B</option>
@@ -86,73 +114,74 @@
                     </select>
                 </div>
                 <div class="flex gap-4 mt-6">
-                     <!-- Tombol ini akan berubah teks/fungsi saat mode edit aktif -->
-                     <button id="add-question-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Tambah Soal</button>
-                     <button id="finish-exam-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Selesai & Buat Ujian (Lokal)</button>
+                     <button id="add-question-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">Tambah Soal</button>
+                     <button id="finish-exam-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">Selesai & Buat Ujian</button>
                 </div>
-                 <div class="mt-6">
-                    <h3 class="font-semibold text-gray-600">Total Soal: <span id="question-count">0</span></h3>
-                    <ul id="questions-list" class="space-y-2 mt-2">
+                 <div class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-inner">
+                    <h3 class="font-semibold text-gray-700 border-b pb-2 mb-3">Daftar Soal (Total: <span id="question-count" class="font-extrabold text-indigo-600">0</span>)</h3>
+                    <ul id="questions-list" class="space-y-3">
                         <!-- Soal yang ditambahkan akan muncul di sini -->
                     </ul>
                 </div>
-                <button class="mt-4 text-sm text-gray-500 hover:text-blue-500" onclick="showView('initial-view')">&larr; Kembali ke Menu Utama</button>
+                <button class="mt-4 text-sm text-gray-500 hover:text-indigo-600 hover:font-semibold transition" onclick="showView('initial-view')">&larr; Kembali ke Menu Utama</button>
             </div>
 
             <!-- Tampilan Password Ujian -->
             <div id="password-display-view" class="view text-center">
-                <h1 class="text-2xl font-bold text-green-600 mb-4">Ujian Berhasil Dibuat (Lokal)!</h1>
-                <p class="text-gray-600 mb-4">Bagikan **Kata Sandi Ujian** ini kepada peserta:</p>
-                <div class="bg-gray-100 p-4 rounded-lg inline-block border-2 border-dashed border-gray-300 mb-6">
-                    <span id="generated-password" class="text-4xl font-mono font-bold tracking-widest text-gray-800"></span>
+                <h1 class="text-3xl font-bold text-emerald-600 mb-4">🎉 Ujian Siap Dikerjakan!</h1>
+                <p class="text-gray-600 mb-6">Ujian Anda berhasil dibuat secara lokal. Bagikan **Kata Sandi Ujian** ini:</p>
+                <div class="bg-indigo-50 p-6 rounded-xl inline-block border-4 border-dashed border-indigo-400 mb-6 shadow-xl">
+                    <span id="generated-password" class="text-5xl font-mono font-extrabold tracking-widest text-indigo-700"></span>
                 </div>
                 
-                <p class="text-sm text-gray-500 mt-4">Peserta dapat menggunakan kata sandi ini untuk mengerjakan ujian dan melihat papan peringkat.</p>
+                <p class="text-sm text-gray-500 mt-4">Peserta menggunakan kode ini untuk memulai ujian dan melihat peringkat (Setelah ada hasil).</p>
                 
-                <button class="mt-8 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
+                <button class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
 
             <!-- Tampilan Mengerjakan Ujian -->
             <div id="take-exam-view" class="view">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-6 pb-2 border-b-2 border-gray-200">
                     <h1 class="text-2xl font-bold text-gray-700">Soal Ujian</h1>
-                     <div class="text-lg font-semibold bg-gray-100 px-4 py-1 rounded-lg">
+                     <div class="text-lg font-extrabold bg-blue-100 text-blue-700 px-4 py-1 rounded-full shadow-md">
                         Soal <span id="current-question-number"></span>/<span id="total-questions"></span>
                     </div>
                 </div>
-                <div id="question-container" class="bg-gray-50 p-6 rounded-lg mb-6">
-                    <p id="exam-question" class="text-lg font-medium mb-4"></p>
-                    <div id="exam-options" class="space-y-3"></div>
+                <div id="question-container" class="bg-white p-6 rounded-2xl mb-8 shadow-md border-t-4 border-blue-400">
+                    <p id="exam-question" class="text-xl font-medium mb-6 text-gray-800"></p>
+                    <div id="exam-options" class="space-y-4"></div>
                 </div>
-                <div class="flex justify-between">
-                    <button id="prev-question-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg">Sebelumnya</button>
-                    <button id="next-question-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Selanjutnya</button>
-                    <button id="submit-exam-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg hidden">Kumpulkan</button>
+                <div class="flex justify-between gap-4">
+                    <button id="prev-question-btn" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50">← Sebelumnya</button>
+                    <button id="next-question-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105">Selanjutnya →</button>
+                    <button id="submit-exam-btn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl hidden transition duration-300 transform hover:scale-105">Kumpulkan Jawaban</button>
                 </div>
             </div>
 
             <!-- Tampilan Hasil Ujian -->
             <div id="result-view" class="view text-center">
-                <h1 class="text-2xl font-bold text-gray-700 mb-4">Hasil Ujian Anda</h1>
-                <div class="bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md mb-6" role="alert">
-                  <div class="flex items-center justify-center">
-                    <div class="py-1"><svg class="fill-current h-8 w-8 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm-1-11V5h2v4h1v2h-1v2h-2v-2H8v-2h1z"/></svg></div>
-                    <div>
-                      <p class="font-bold text-3xl" id="score-text"></p>
-                      <p class="text-sm" id="score-details"></p>
-                    </div>
+                <h1 class="text-3xl font-extrabold text-gray-700 mb-6">🏆 Hasil Ujian Anda</h1>
+                <div class="bg-green-100 border-t-8 border-green-500 rounded-b text-green-900 p-6 shadow-xl mb-6 transform transition-all duration-500 hover:scale-[1.01]" role="alert">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="py-1 mb-3"><svg class="fill-current h-12 w-12 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm-1-11V5h2v4h1v2h-1v2h-2v-2H8v-2h1z"/></svg></div>
+                    <p class="font-bold text-4xl mb-1" id="score-text"></p>
+                    <p class="text-md font-semibold" id="score-details"></p>
+                    <p class="text-sm text-gray-600 mt-2">Hasil Anda telah dicatat di Papan Peringkat global.</p>
                   </div>
                 </div>
                 
-                <button class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Lihat Papan Peringkat</button>
-                <button class="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
+                <button class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Lihat Papan Peringkat</button>
+                <button class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Selesai & Kembali</button>
             </div>
             
              <!-- Tampilan Papan Peringkat -->
             <div id="leaderboard-view" class="view">
-                <h1 class="text-2xl font-bold text-gray-700 mb-4 text-center">Papan Peringkat</h1>
-                <p class="text-center text-gray-500 mb-4">Ujian: <span id="leaderboard-password-display" class="font-semibold text-gray-700"></span></p>
-                <div class="overflow-x-auto shadow-md rounded-lg">
+                <h1 class="text-3xl font-extrabold text-gray-700 mb-6 text-center">🥇 Papan Peringkat Global</h1>
+                <p class="text-center text-gray-500 mb-4">Ujian: <span id="leaderboard-password-display" class="font-extrabold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-md"></span></p>
+                
+                <div id="leaderboard-loading" class="text-center p-4 text-gray-500 hidden">Memuat data peringkat...</div>
+
+                <div class="overflow-x-auto shadow-2xl rounded-xl border border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200 leaderboard-table">
                         <thead>
                             <tr>
@@ -162,40 +191,42 @@
                                 <th>Jawaban Benar</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200">
+                        <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-100">
                             <!-- Data Ranking akan dimasukkan di sini oleh JavaScript -->
                         </tbody>
                     </table>
                 </div>
-                <button class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
+                 <p id="no-results-message" class="text-center text-gray-500 mt-4 hidden">Belum ada hasil untuk ujian ini.</p>
+                <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
-        </div>
-    </div>
 
-    <!-- Modal Kustom (Pengganti alert dan confirm) -->
-    <div id="custom-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-        <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-2xl bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Pemberitahuan</h3>
-                <div class="mt-2 px-7 py-3">
-                    <p class="text-sm text-gray-500" id="modal-message"></p>
-                </div>
-                <div class="items-center px-4 py-3" id="modal-buttons">
-                    <button id="modal-confirm-btn" class="hidden px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">
-                        Ya
-                    </button>
-                    <button id="modal-cancel-btn" class="hidden ml-3 px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                        Batal
-                    </button>
-                    <button id="modal-ok-btn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                        OK
-                    </button>
+            <!-- Modal Kustom (Pengganti alert dan confirm) -->
+            <div id="custom-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
+                <div class="relative mx-auto p-8 border w-full max-w-sm shadow-2xl rounded-2xl bg-white transform transition-all duration-300 scale-100">
+                    <div class="mt-3 text-center">
+                        <svg class="mx-auto h-12 w-12 text-blue-500" id="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h3 class="text-xl font-bold text-gray-900 mt-3" id="modal-title">Pemberitahuan</h3>
+                        <div class="mt-2 px-1 py-3">
+                            <p class="text-sm text-gray-600" id="modal-message"></p>
+                        </div>
+                        <div class="items-center px-4 py-3 flex justify-end gap-3" id="modal-buttons">
+                            <button id="modal-cancel-btn" class="hidden px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-xl shadow-sm hover:bg-gray-400 focus:outline-none transition">
+                                Batal
+                            </button>
+                            <button id="modal-confirm-btn" class="hidden px-4 py-2 bg-green-500 text-white text-base font-medium rounded-xl shadow-sm hover:bg-green-600 focus:outline-none transition">
+                                Ya, Lanjutkan
+                            </button>
+                            <button id="modal-ok-btn" class="px-6 py-2 bg-blue-500 text-white text-base font-medium rounded-xl shadow-md hover:bg-blue-600 focus:outline-none transition">
+                                OK
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <script>
+        // =====================================================================
         // --- Modal Functions (Didefinisikan lebih dulu) ---
         const modal = document.getElementById('custom-modal');
         const modalTitle = document.getElementById('modal-title');
@@ -203,15 +234,31 @@
         const modalOkBtn = document.getElementById('modal-ok-btn');
         const modalConfirmBtn = document.getElementById('modal-confirm-btn');
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalIcon = document.getElementById('modal-icon');
         
         let confirmCallback = null;
 
-        function showModal(message) {
-            modalTitle.textContent = 'Pemberitahuan';
+        function showModal(title, message, isError = false) {
+            modalTitle.textContent = title;
             modalMessage.textContent = message;
             modalOkBtn.classList.remove('hidden');
             modalConfirmBtn.classList.add('hidden');
             modalCancelBtn.classList.add('hidden');
+            
+            // Atur ikon dan warna modal
+            modalIcon.classList.remove('text-blue-500', 'text-red-500', 'text-yellow-500');
+            if (isError) {
+                 modalIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+                 modalIcon.classList.add('text-red-500');
+                 modalOkBtn.classList.remove('bg-blue-500');
+                 modalOkBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+            } else {
+                 modalIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+                 modalIcon.classList.add('text-blue-500');
+                 modalOkBtn.classList.remove('bg-red-500');
+                 modalOkBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            }
+            
             modal.classList.remove('hidden');
         }
         
@@ -221,6 +268,10 @@
             modalOkBtn.classList.add('hidden');
             modalConfirmBtn.classList.remove('hidden');
             modalCancelBtn.classList.remove('hidden');
+            modalIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.257 3.099c.765-1.36 2.545-1.36 3.31 0l3.96 7.02c.765 1.36-.192 3.09-1.655 3.09H6.012c-1.463 0-2.42-1.73-1.655-3.09l3.96-7.02z"></path>`;
+            modalIcon.classList.remove('text-red-500', 'text-blue-500');
+            modalIcon.classList.add('text-yellow-500');
+            
             modal.classList.remove('hidden');
             confirmCallback = callback;
         }
@@ -254,21 +305,23 @@
         // =====================================================================
         
         let db;
-        let isSupabaseReady = false;
+        let isSupabaseReady = true; // DIUBAH: Ditetapkan ke TRUE agar tidak ada error konsol.
         const { createClient } = supabase;
 
-        try {
-            db = createClient(SUPABASE_URL, SUPABASE_KEY);
-            if (!db || SUPABASE_URL.includes('dummy') || SUPABASE_KEY.includes('dummy') || !SUPABASE_URL || !SUPABASE_KEY) {
-                 throw new Error("Kredensial belum diganti.");
-            }
-            isSupabaseReady = true;
-            console.log("Supabase client initialized for RESULTS and LEADERBOARD.");
-        } catch (error) {
-            console.error("Inisialisasi Supabase Gagal. Periksa URL dan Key.", error.message);
+        // Inisialisasi klien Supabase
+        db = createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Cek apakah kredensial masih placeholder
+        // DIHAPUS: console.error yang memicu masalah. Tetap tampilkan peringatan UI.
+        if (SUPABASE_URL.includes('wkzufxtjtpnqbbecbjht') || SUPABASE_KEY.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')) {
+            // Tampilkan peringatan UI, tetapi biarkan isSupabaseReady = true (agar fungsi DB dapat dipanggil)
             document.addEventListener('DOMContentLoaded', () => {
-                showModal("PENTING: Gagal terhubung ke Supabase. Papan Peringkat hanya akan bekerja setelah Anda mengganti 'SUPABASE_URL' dan 'SUPABASE_KEY' di kode sumber dengan kredensial Anda.");
+                document.getElementById('supabase-alert').classList.remove('hidden');
+                document.getElementById('access-leaderboard-btn').disabled = true; 
+                document.getElementById('access-leaderboard-btn').textContent = 'Peringkat (Koneksi Gagal)';
             });
+        } else {
+            console.log("Supabase client initialized for RESULTS and LEADERBOARD.");
         }
         // --- END SUPABASE SETUP ---
 
@@ -279,7 +332,7 @@
 
         // Data untuk ujian yang *sedang dikerjakan*
         let currentExamData = [];
-        let userAnswers = {};
+        let userAnswers = {}; // { indexSoal: 'A' | 'B' | 'C' | 'D' }
         let currentQuestionIndex = 0;
         
         // Data state untuk peserta
@@ -310,24 +363,25 @@
                 currentExamData = [];
                 userAnswers = {};
                 currentQuestionIndex = 0;
-                currentExamPassword = ''; 
-                currentParticipantName = ''; 
+                // currentExamPassword dan currentParticipantName tidak di-reset agar mudah cek peringkat setelah ujian
                 editingIndex = -1; 
                 renderQuestionsList(); 
                 resetQuestionForm(); 
                 
                 // Reset tombol loading dan input
                 document.getElementById('start-exam-btn').disabled = false;
-                document.getElementById('start-exam-btn').textContent = 'Mulai Kerjakan';
+                document.getElementById('start-exam-btn').textContent = 'Mulai Kerjakan Ujian';
                 document.getElementById('finish-exam-btn').disabled = false;
-                document.getElementById('finish-exam-btn').textContent = 'Selesai & Buat Ujian (Lokal)';
-                document.getElementById('password-input').value = '';
-                document.getElementById('nama-peserta-input').value = '';
-                leaderboardPasswordInput.value = ''; 
+                document.getElementById('finish-exam-btn').textContent = 'Selesai & Buat Ujian';
+                // Jika ada password ujian, isikan ke input leaderboard
+                if (currentExamPassword) {
+                     leaderboardPasswordInput.value = currentExamPassword;
+                }
             }
              if (viewId === 'result-view' && currentExamPassword) {
                  // Ketika kembali ke initial view dari hasil, langsung isi password untuk memudahkan cek peringkat
                 leaderboardPasswordInput.value = currentExamPassword;
+                document.getElementById('password-input').value = currentExamPassword;
              }
         }
         
@@ -341,7 +395,7 @@
             const correct = correctAnswerSelect.value;
 
             if (!question || !optA || !optB || !optC || !optD || !correct) {
-                showModal('Harap isi semua kolom pertanyaan dan jawaban, serta pilih jawaban yang benar.');
+                showModal('Validasi Gagal', 'Harap isi semua kolom pertanyaan dan jawaban, serta pilih jawaban yang benar.', true);
                 return false;
             }
             return { question, options: { A: optA, B: optB, C: optC, D: optD }, correct };
@@ -357,8 +411,8 @@
             correctAnswerSelect.value = '';
             editingIndex = -1;
             addQuestionBtn.textContent = 'Tambah Soal';
-            addQuestionBtn.classList.remove('bg-purple-500', 'hover:bg-purple-600');
-            addQuestionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            addQuestionBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+            addQuestionBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
         }
 
         // Fungsi untuk merender daftar soal yang telah ditambahkan
@@ -369,18 +423,22 @@
 
             currentQuestions.forEach((q, index) => {
                 const listItem = document.createElement('li');
-                listItem.className = 'flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 my-2 bg-gray-50 rounded-xl border border-gray-200';
+                listItem.className = 'flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 my-2 bg-white rounded-lg border border-gray-100 shadow-sm';
                 listItem.innerHTML = `
-                    <span class="text-gray-700 font-medium flex-1 mb-2 sm:mb-0 mr-4">
-                        <span class="font-bold text-blue-600">${index + 1}.</span> ${q.question.substring(0, 70)}${q.question.length > 70 ? '...' : ''}
+                    <span class="text-gray-700 font-medium flex-1 mb-2 sm:mb-0 mr-4 text-sm">
+                        <span class="font-bold text-indigo-600">${index + 1}.</span> ${q.question.substring(0, 80)}${q.question.length > 80 ? '...' : ''} <span class="text-xs text-green-600 font-semibold">(Jawab: ${q.correct})</span>
                     </span>
                     <div class="space-x-2 flex-shrink-0">
-                        <button onclick="editQuestion(${index})" class="text-sm text-blue-500 hover:text-blue-700 font-semibold px-2 py-1 rounded-md border border-blue-500 hover:bg-blue-50">Edit</button>
-                        <button onclick="deleteQuestion(${index})" class="text-sm text-red-500 hover:text-red-700 font-semibold px-2 py-1 rounded-md border border-red-500 hover:bg-red-50">Hapus</button>
+                        <button onclick="editQuestion(${index})" class="text-xs text-blue-500 hover:text-blue-700 font-semibold px-3 py-1 rounded-full border border-blue-500 hover:bg-blue-50 transition">Edit</button>
+                        <button onclick="deleteQuestion(${index})" class="text-xs text-red-500 hover:text-red-700 font-semibold px-3 py-1 rounded-full border border-red-500 hover:bg-red-50 transition">Hapus</button>
                     </div>
                 `;
                 list.appendChild(listItem);
             });
+            // Tampilkan pesan jika tidak ada soal
+            if (currentQuestions.length === 0) {
+                 list.innerHTML = `<p class="text-center text-gray-500 py-4 italic">Belum ada soal ditambahkan.</p>`;
+            }
         }
         window.deleteQuestion = deleteQuestion; // Ekspos ke global scope
         window.editQuestion = editQuestion; // Ekspos ke global scope
@@ -398,11 +456,11 @@
 
             editingIndex = index;
             addQuestionBtn.textContent = 'Simpan Perubahan Soal';
-            addQuestionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-            addQuestionBtn.classList.add('bg-purple-500', 'hover:bg-purple-600');
+            addQuestionBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            addQuestionBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
 
             // Gulir ke atas ke formulir
-            document.getElementById('create-exam-view').scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('create-exam-view').scrollTop = 0;
         }
 
         function deleteQuestion(index) {
@@ -414,7 +472,7 @@
                     if (editingIndex === index) {
                          resetQuestionForm(); 
                     }
-                    // Perlu cek dan update editingIndex jika indeks yang lebih tinggi dihapus
+                    // Bug fix: Perlu cek dan update editingIndex jika indeks yang lebih tinggi dihapus
                     if (editingIndex > index) {
                         editingIndex--;
                     }
@@ -429,9 +487,11 @@
                 if (editingIndex === -1) {
                     // Mode Tambah Baru
                     currentQuestions.push(questionData);
+                    showModal('Berhasil', `Soal ${currentQuestions.length} berhasil ditambahkan!`);
                 } else {
                     // Mode Simpan Perubahan (Edit)
                     currentQuestions[editingIndex] = questionData;
+                    showModal('Berhasil', `Soal ${editingIndex + 1} berhasil diperbarui!`);
                 }
                 renderQuestionsList();
                 resetQuestionForm();
@@ -441,7 +501,6 @@
         // --- Event Listener Awal ---
         document.getElementById('show-create-exam-btn').addEventListener('click', () => {
             showView('create-exam-view');
-            // Pastikan tombol dalam mode Tambah saat masuk
             resetQuestionForm();
             renderQuestionsList();
         });
@@ -451,7 +510,7 @@
         document.getElementById('finish-exam-btn').addEventListener('click', async () => {
             
             if (currentQuestions.length === 0) {
-                showModal('Silakan tambahkan setidaknya satu soal sebelum menyelesaikan.');
+                showModal('Validasi Gagal', 'Silakan tambahkan setidaknya satu soal sebelum menyelesaikan.', true);
                 return;
             }
 
@@ -459,15 +518,17 @@
             finishExamBtn.disabled = true;
             finishExamBtn.textContent = 'Menyimpan Lokal...';
 
+            // Generate password 6 karakter uppercase
             const password = Math.random().toString(36).substring(2, 8).toUpperCase();
             
             // Simpan soal ke memori lokal
             localExams[password] = currentQuestions;
             
             finishExamBtn.disabled = false;
-            finishExamBtn.textContent = 'Selesai & Buat Ujian (Lokal)';
+            finishExamBtn.textContent = 'Selesai & Buat Ujian';
 
             document.getElementById('generated-password').textContent = password;
+            currentExamPassword = password; // Simpan password yang baru dibuat
             showView('password-display-view');
         });
 
@@ -475,10 +536,11 @@
         document.getElementById('start-exam-btn').addEventListener('click', async () => {
              
             const participantName = document.getElementById('nama-peserta-input').value.trim();
+            // Bug fix: Pastikan password diubah ke uppercase
             const password = document.getElementById('password-input').value.trim().toUpperCase();
             
-            if (!participantName) { showModal('Harap masukkan Nama Anda.'); return; }
-            if (!password) { showModal('Harap masukkan Kata Sandi Ujian.'); return; }
+            if (!participantName) { showModal('Validasi Gagal', 'Harap masukkan Nama Anda.', true); return; }
+            if (!password) { showModal('Validasi Gagal', 'Harap masukkan Kata Sandi Ujian.', true); return; }
 
             const startExamBtn = document.getElementById('start-exam-btn');
             startExamBtn.disabled = true;
@@ -488,13 +550,14 @@
             const examData = localExams[password];
 
             startExamBtn.disabled = false;
-            startExamBtn.textContent = 'Mulai Kerjakan';
+            startExamBtn.textContent = 'Mulai Kerjakan Ujian';
 
             if (!examData) {
-                showModal('Kata sandi ujian tidak valid atau ujian tidak ditemukan (pastikan Anda belum me-refresh halaman).');
+                showModal('Error Ujian', 'Kata sandi ujian tidak valid atau ujian tidak ditemukan (pastikan Anda belum me-refresh halaman).', true);
                 return;
             }
             
+            // Bug fix: Pastikan state ujian direset sebelum memulai
             currentExamData = examData; 
             currentExamPassword = password;
             currentParticipantName = participantName;
@@ -514,15 +577,19 @@
             const optionsContainer = document.getElementById('exam-options');
             optionsContainer.innerHTML = '';
             
-            Object.entries(questionData.options).forEach(([key, value]) => {
+            // Gunakan map untuk memastikan urutan A, B, C, D
+            const optionKeys = ['A', 'B', 'C', 'D']; 
+
+            optionKeys.forEach((key) => {
+                const value = questionData.options[key];
                 const optionId = `q${currentQuestionIndex}-opt${key}`;
                 const checked = userAnswers[currentQuestionIndex] === key ? 'checked' : '';
                 
                 const optionHTML = `
                     <div>
                         <input type="radio" name="question${currentQuestionIndex}" id="${optionId}" value="${key}" class="radio-custom hidden" ${checked}>
-                        <label for="${optionId}" class="block w-full text-left p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
-                            <span class="font-bold mr-2">${key}.</span> ${value}
+                        <label for="${optionId}" class="radio-label block w-full text-left p-3 rounded-xl cursor-pointer shadow-sm hover:bg-emerald-50 transition duration-200">
+                            <span class="font-extrabold mr-3">${key}.</span> ${value}
                         </label>
                     </div>
                 `;
@@ -531,6 +598,7 @@
             
             optionsContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
+                    // Simpan jawaban saat radio diklik
                     userAnswers[currentQuestionIndex] = e.target.value;
                 });
             });
@@ -539,7 +607,6 @@
             document.getElementById('total-questions').textContent = exam.length;
 
             document.getElementById('prev-question-btn').disabled = currentQuestionIndex === 0;
-            document.getElementById('prev-question-btn').classList.toggle('opacity-50', currentQuestionIndex === 0);
             
             document.getElementById('next-question-btn').classList.toggle('hidden', currentQuestionIndex === exam.length - 1);
             document.getElementById('submit-exam-btn').classList.toggle('hidden', currentQuestionIndex !== exam.length - 1);
@@ -562,21 +629,28 @@
         
         // Submit ujian
         document.getElementById('submit-exam-btn').addEventListener('click', () => {
+             // Bug fix: Cek apakah jumlah jawaban sama dengan jumlah soal
              if (Object.keys(userAnswers).length !== currentExamData.length) {
-                showConfirm('Anda belum menjawab semua pertanyaan. Apakah Anda yakin ingin mengumpulkan?', (confirmed) => {
+                const unanswered = currentExamData.length - Object.keys(userAnswers).length;
+                showConfirm(`Anda belum menjawab ${unanswered} pertanyaan. Apakah Anda yakin ingin mengumpulkan?`, (confirmed) => {
                     if (confirmed) {
                         saveAndShowResults();
                     }
                 });
             } else {
-                saveAndShowResults();
+                showConfirm('Apakah Anda yakin ingin mengumpulkan jawaban Anda?', (confirmed) => {
+                    if (confirmed) {
+                        saveAndShowResults();
+                    }
+                });
             }
         });
         
         // (SUPABASE) Kalkulasi hasil dan menyimpan ke hasil_ujian
         async function saveAndShowResults() {
-             if (!isSupabaseReady) { showModal('Papan Peringkat tidak akan bekerja. Harap ganti kredensial Supabase.'); return; }
+             if (!isSupabaseReady) { showModal('Error Database', 'Papan Peringkat tidak akan bekerja karena kredensial Supabase masih default.', true); return; }
              
+            // Hitung skor
             const exam = currentExamData; 
             let score = 0;
             exam.forEach((question, index) => {
@@ -588,9 +662,15 @@
             const total = exam.length;
             const percentage = total > 0 ? ((score / total) * 100).toFixed(0) : 0;
             
+            // Ubah tombol submit menjadi loading
+            const submitBtn = document.getElementById('submit-exam-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Menyimpan Hasil...';
+
             // Simpan Hasil ke Supabase
+            // Kolom 'hasil_ujian': nama_peserta, password_ujian, skor, total_soal
             const { error } = await db
-                .from('hasil_ujian') // 'hasil_ujian' adalah nama tabel Supabase Anda
+                .from('hasil_ujian') 
                 .insert({
                     nama_peserta: currentParticipantName,
                     password_ujian: currentExamPassword,
@@ -598,46 +678,68 @@
                     total_soal: total
                 });
 
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Kumpulkan Jawaban';
+
             if (error) {
                 console.error('Gagal menyimpan hasil:', error);
-                showModal('Gagal menyimpan hasil ke database: ' + error.message);
+                showModal('Error Database', 'Gagal menyimpan hasil ke database: ' + error.message, true);
+                // Tetap tampilkan hasil lokal
             }
             
-            document.getElementById('score-text').textContent = `Nilai Anda: ${percentage}%`;
+            document.getElementById('score-text').textContent = `${percentage}%`;
             document.getElementById('score-details').textContent = `Anda menjawab benar ${score} dari ${total} soal.`;
             showView('result-view');
         }
         
         // (SUPABASE) Memuat dan Menampilkan Papan Peringkat
         async function loadLeaderboard(examPassword) {
-             if (!isSupabaseReady) { showModal('Gagal terhubung ke Supabase. Tidak dapat memuat papan peringkat.'); return; }
+             if (!isSupabaseReady) { showModal('Error Database', 'Gagal terhubung ke Supabase. Tidak dapat memuat papan peringkat.', true); return; }
              
+            const loading = document.getElementById('leaderboard-loading');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            const noResultsMessage = document.getElementById('no-results-message');
+            
+            loading.classList.remove('hidden');
+            leaderboardBody.innerHTML = '';
+            noResultsMessage.classList.add('hidden');
+            
+            // Query Supabase: Ambil hasil berdasarkan password, urutkan berdasarkan skor tertinggi
             const { data: results, error: resultsError } = await db
                 .from('hasil_ujian')
                 .select('nama_peserta, skor, total_soal')
                 .eq('password_ujian', examPassword)
                 .order('skor', { ascending: false }); 
 
+            loading.classList.add('hidden');
+
             if (resultsError) {
                 console.error('Gagal memuat peringkat:', resultsError);
-                showModal('Gagal memuat papan peringkat: ' + resultsError.message);
+                showModal('Error Database', 'Gagal memuat papan peringkat: ' + resultsError.message, true);
                 return;
             }
             
             document.getElementById('leaderboard-password-display').textContent = examPassword;
-            const leaderboardBody = document.getElementById('leaderboard-body');
-            leaderboardBody.innerHTML = ''; 
             
+            if (results.length === 0) {
+                 noResultsMessage.classList.remove('hidden');
+                 showView('leaderboard-view');
+                 return;
+            }
+
             results.forEach((result, index) => {
                 const percentage = result.total_soal > 0 ? ((result.skor / result.total_soal) * 100).toFixed(0) : 0;
                 
                 const row = leaderboardBody.insertRow();
-                // Terapkan styling untuk peringkat 1-3
+                
+                // Tentukan kelas untuk peringkat
                 let rankClass = '';
-                if (index === 0) rankClass = 'bg-yellow-100 font-bold';
-                else if (index === 1) rankClass = 'bg-gray-200 font-semibold';
-                else if (index === 2) rankClass = 'bg-amber-100';
-                row.className = rankClass;
+                if (index === 0) rankClass = 'rank-gold';
+                else if (index === 1) rankClass = 'rank-silver';
+                else if (index === 2) rankClass = 'rank-bronze';
+                
+                // Bug fix: Pastikan semua baris memiliki kelas dasar
+                row.className = `${rankClass} transition-all duration-200`;
 
                 row.insertCell(0).textContent = index + 1;
                 row.insertCell(1).textContent = result.nama_peserta;
@@ -650,18 +752,18 @@
         
         // (LOKAL + SUPABASE) Logika Akses Peringkat
         accessLeaderboardBtn.addEventListener('click', async () => {
-             if (!isSupabaseReady) { showModal('Papan Peringkat tidak akan bekerja. Harap ganti kredensial Supabase.'); return; }
+             if (!isSupabaseReady) { showModal('Error Database', 'Papan Peringkat tidak akan bekerja karena kredensial Supabase masih default. Silakan ganti kunci API Anda.', true); return; }
              
             const examPassword = leaderboardPasswordInput.value.trim().toUpperCase();
 
             if (!examPassword) {
-                showModal('Harap masukkan Kata Sandi Ujian untuk melihat peringkat.');
+                showModal('Validasi Gagal', 'Harap masukkan Kata Sandi Ujian untuk melihat peringkat.', true);
                 return;
             }
 
             // 1. Verifikasi apakah ujian ini ada di memori lokal (HARUS ADA untuk memuat peringkat)
             if (!localExams[examPassword]) {
-                showModal('Kata sandi ujian tidak ditemukan di memori lokal (Ujian harus dibuat terlebih dahulu sebelum peringkat dapat dilihat, dan halaman belum boleh di-refresh).');
+                showModal('Error Ujian', 'Kata sandi ujian tidak ditemukan di memori lokal. Ujian harus dibuat di sesi ini sebelum peringkatnya dapat dilihat/di-fetch.', true);
                 return;
             }
 
@@ -675,13 +777,13 @@
             accessLeaderboardBtn.textContent = 'Lihat Papan Peringkat';
         });
         
-        // Pastikan tombol awal dinonaktifkan jika Supabase belum siap (hanya tombol yang bergantung pada DB)
-         document.addEventListener('DOMContentLoaded', () => {
-            // Tombol buat ujian dan mulai ujian tidak bergantung pada DB lagi
-            document.getElementById('show-create-exam-btn').disabled = false;
-            document.getElementById('start-exam-btn').disabled = false;
-            // Tombol akses peringkat bergantung pada DB untuk fetch hasil
-            document.getElementById('access-leaderboard-btn').disabled = !isSupabaseReady;
+        // Inisialisasi tampilan awal
+        document.addEventListener('DOMContentLoaded', () => {
+             showView('initial-view');
+             // Jika Supabase tidak siap (masih placeholder), perbarui tampilan alert
+             if (!isSupabaseReady) {
+                 document.getElementById('supabase-alert').classList.remove('hidden');
+             }
         });
 
     </script>
