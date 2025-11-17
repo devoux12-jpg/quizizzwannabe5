@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <!-- PENTING: Viewport meta tag untuk memastikan skala yang benar di perangkat seluler -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Ujian Online Interaktif</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,6 +12,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* Memastikan body tidak memiliki lebar tetap dan menyesuaikan diri */
         }
         .view {
             display: none;
@@ -26,9 +28,13 @@
             box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4), 0 2px 4px -2px rgba(16, 185, 129, 0.4);
             transform: scale(1.02);
         }
+        /* Label dibuat besar dan mudah disentuh (touch-target friendly) */
         .radio-custom + label {
             transition: all 0.2s ease-in-out;
             border: 2px solid #e5e7eb;
+            min-height: 50px; /* Memastikan touch target minimal 50px */
+            display: flex; /* Untuk perataan konten di dalam label */
+            align-items: center;
         }
         .radio-custom + label:hover {
             border-color: #a7f3d0; /* hover:border-emerald-200 */
@@ -42,11 +48,12 @@
 
         /* Leaderboard table styling */
         .leaderboard-table th {
-            @apply px-4 py-3 bg-blue-600 text-left text-xs font-medium text-white uppercase tracking-wider rounded-t-lg;
+            @apply px-2 py-3 md:px-4 bg-blue-600 text-left text-xs font-medium text-white uppercase tracking-wider rounded-t-lg;
             background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
         }
         .leaderboard-table td {
-             @apply px-4 py-3 whitespace-nowrap text-sm;
+             /* Padding disesuaikan untuk mobile */
+             @apply px-2 py-3 md:px-4 whitespace-nowrap text-sm;
              border-bottom: 1px solid #f3f4f6;
         }
         .leaderboard-table tr:hover {
@@ -59,38 +66,39 @@
 
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-indigo-600 flex flex-col items-center justify-center min-h-screen p-4">
+<body class="bg-gradient-to-br from-blue-500 to-indigo-600 flex flex-col items-center justify-start min-h-screen p-2 sm:p-4">
 
     <div class="container mx-auto max-w-xl w-full">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl border-b-8 border-indigo-700 transition-all duration-500">
+        <!-- Padding disesuaikan agar tidak terlalu sempit di pinggir layar mobile -->
+        <div class="bg-white p-4 sm:p-8 rounded-3xl shadow-2xl border-b-8 border-indigo-700 transition-all duration-500">
 
-          
+           
 
             <!-- Tampilan Awal -->
             <div id="initial-view" class="view active">
-                <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-2">🎓 Aplikasi Ujian Interaktif</h1>
-                <p class="text-center text-gray-500 mb-8">Pilih tindakan di bawah ini untuk memulai.</p>
-                <div class="flex flex-col gap-4">
-                    <button id="show-create-exam-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl">
-                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-800 mb-2">🎓 Aplikasi Ujian Interaktif</h1>
+                <p class="text-center text-gray-500 mb-6">Pilih tindakan di bawah ini untuk memulai.</p>
+                <div class="flex flex-col gap-3 sm:gap-4">
+                    <button id="show-create-exam-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl text-sm sm:text-base">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Buat Ujian Baru (Administrator)
                     </button>
-                    <div class="border-t border-gray-200 my-2"></div>
+                    <div class="border-t border-gray-200 my-1"></div>
                     
-                    <h2 class="text-xl font-bold text-center text-gray-700 mb-3">Mode Peserta</h2>
+                    <h2 class="text-lg sm:text-xl font-bold text-center text-gray-700 mb-2">Mode Peserta</h2>
                     <!-- Input Nama Peserta -->
-                    <input type="text" id="nama-peserta-input" placeholder="Masukkan Nama Anda" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-green-200 focus:border-green-500 transition duration-200">
-                    <input type="text" id="password-input" placeholder="Masukkan Kata Sandi Ujian (Cth: 4B2E9F)" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-200 uppercase">
-                    <button id="start-exam-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl">
-                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.207a7.5 7.5 0 00-11.419 0L4.794 13.94A2 2 0 005.137 17h13.726a2 2 0 00.343-3.06l-5.6-5.6z"></path></svg>
+                    <input type="text" id="nama-peserta-input" placeholder="Masukkan Nama Anda" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-green-200 focus:border-green-500 transition duration-200 text-sm sm:text-base">
+                    <input type="text" id="password-input" placeholder="Masukkan Kata Sandi Ujian (Cth: 4B2E9F)" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-200 uppercase text-sm sm:text-base">
+                    <button id="start-exam-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl text-sm sm:text-base">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.207a7.5 7.5 0 00-11.419 0L4.794 13.94A2 2 0 005.137 17h13.726a2 2 0 00.343-3.06l-5.6-5.6z"></path></svg>
                         Mulai Kerjakan Ujian
                     </button>
 
-                    <div class="border-t border-gray-200 my-2"></div>
-                    <h2 class="text-xl font-bold text-center text-gray-700 mb-3">Akses Peringkat (Publik)</h2>
-                    <input type="text" id="leaderboard-password-input" placeholder="Masukkan Kata Sandi Ujian" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-yellow-200 focus:border-yellow-500 transition duration-200 uppercase">
-                    <button id="access-leaderboard-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl">
-                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <div class="border-t border-gray-200 my-1"></div>
+                    <h2 class="text-lg sm:text-xl font-bold text-center text-gray-700 mb-2">Akses Peringkat (Publik)</h2>
+                    <input type="text" id="leaderboard-password-input" placeholder="Masukkan Kata Sandi Ujian" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-yellow-200 focus:border-yellow-500 transition duration-200 uppercase text-sm sm:text-base">
+                    <button id="access-leaderboard-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl text-sm sm:text-base">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         Lihat Papan Peringkat
                     </button>
                 </div>
@@ -98,14 +106,14 @@
 
             <!-- Tampilan Buat Ujian -->
             <div id="create-exam-view" class="view">
-                <h1 class="text-2xl font-bold mb-6 text-gray-700 border-b pb-2 border-gray-200">✍️ Pembuatan Soal Ujian</h1>
-                <div class="space-y-4">
-                    <textarea id="question-input" placeholder="Tuliskan pertanyaan Anda di sini..." class="w-full h-28 px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200" rows="3"></textarea>
-                    <input type="text" id="option-a" placeholder="Pilihan Jawaban A" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
-                    <input type="text" id="option-b" placeholder="Pilihan Jawaban B" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
-                    <input type="text" id="option-c" placeholder="Pilihan Jawaban C" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
-                    <input type="text" id="option-d" placeholder="Pilihan Jawaban D" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200">
-                    <select id="correct-answer" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:ring-4 focus:ring-blue-200 transition duration-200">
+                <h1 class="text-xl sm:text-2xl font-bold mb-4 text-gray-700 border-b pb-2 border-gray-200">✍️ Pembuatan Soal Ujian</h1>
+                <div class="space-y-3 sm:space-y-4">
+                    <textarea id="question-input" placeholder="Tuliskan pertanyaan Anda di sini..." class="w-full h-24 sm:h-28 px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200 text-sm sm:text-base" rows="3"></textarea>
+                    <input type="text" id="option-a" placeholder="Pilihan Jawaban A" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200 text-sm sm:text-base">
+                    <input type="text" id="option-b" placeholder="Pilihan Jawaban B" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200 text-sm sm:text-base">
+                    <input type="text" id="option-c" placeholder="Pilihan Jawaban C" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200 text-sm sm:text-base">
+                    <input type="text" id="option-d" placeholder="Pilihan Jawaban D" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 transition duration-200 text-sm sm:text-base">
+                    <select id="correct-answer" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:ring-4 focus:ring-blue-200 transition duration-200 text-sm sm:text-base">
                         <option value="" disabled selected>Pilih Jawaban Benar</option>
                         <option value="A">Jawaban A</option>
                         <option value="B">Jawaban B</option>
@@ -113,12 +121,13 @@
                         <option value="D">Jawaban D</option>
                     </select>
                 </div>
-                <div class="flex gap-4 mt-6">
-                     <button id="add-question-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">Tambah Soal</button>
-                     <button id="finish-exam-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]">Selesai & Buat Ujian</button>
+                <!-- Tombol diset agar sejajar di layar besar, dan tetap full-width di mobile -->
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
+                     <button id="add-question-btn" class="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base">Tambah Soal</button>
+                     <button id="finish-exam-btn" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base">Selesai & Buat Ujian</button>
                 </div>
-                 <div class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-inner">
-                    <h3 class="font-semibold text-gray-700 border-b pb-2 mb-3">Daftar Soal (Total: <span id="question-count" class="font-extrabold text-indigo-600">0</span>)</h3>
+                 <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 shadow-inner">
+                    <h3 class="font-semibold text-gray-700 border-b pb-2 mb-3 text-base sm:text-lg">Daftar Soal (Total: <span id="question-count" class="font-extrabold text-indigo-600">0</span>)</h3>
                     <ul id="questions-list" class="space-y-3">
                         <!-- Soal yang ditambahkan akan muncul di sini -->
                     </ul>
@@ -128,59 +137,61 @@
 
             <!-- Tampilan Password Ujian -->
             <div id="password-display-view" class="view text-center">
-                <h1 class="text-3xl font-bold text-emerald-600 mb-4">🎉 Ujian Siap Dikerjakan!</h1>
-                <p class="text-gray-600 mb-6">Ujian Anda berhasil dibuat secara lokal. Bagikan **Kata Sandi Ujian** ini:</p>
-                <div class="bg-indigo-50 p-6 rounded-xl inline-block border-4 border-dashed border-indigo-400 mb-6 shadow-xl">
-                    <span id="generated-password" class="text-5xl font-mono font-extrabold tracking-widest text-indigo-700"></span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-emerald-600 mb-4">🎉 Ujian Siap Dikerjakan!</h1>
+                <p class="text-gray-600 mb-6 text-sm sm:text-base">Ujian Anda berhasil dibuat secara lokal. Bagikan **Kata Sandi Ujian** ini:</p>
+                <div class="bg-indigo-50 p-5 sm:p-6 rounded-xl inline-block border-4 border-dashed border-indigo-400 mb-6 shadow-xl">
+                    <span id="generated-password" class="text-4xl sm:text-5xl font-mono font-extrabold tracking-widest text-indigo-700"></span>
                 </div>
                 
-                <p class="text-sm text-gray-500 mt-4">Peserta menggunakan kode ini untuk memulai ujian dan melihat peringkat (Setelah ada hasil).</p>
+                <p class="text-xs sm:text-sm text-gray-500 mt-4">Peserta menggunakan kode ini untuk memulai ujian dan melihat peringkat (Setelah ada hasil).</p>
                 
-                <button class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
+                <button class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 text-sm sm:text-base" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
 
             <!-- Tampilan Mengerjakan Ujian -->
             <div id="take-exam-view" class="view">
                 <div class="flex justify-between items-center mb-6 pb-2 border-b-2 border-gray-200">
-                    <h1 class="text-2xl font-bold text-gray-700">Soal Ujian</h1>
-                     <div class="text-lg font-extrabold bg-blue-100 text-blue-700 px-4 py-1 rounded-full shadow-md">
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-700">Soal Ujian</h1>
+                     <div class="text-base sm:text-lg font-extrabold bg-blue-100 text-blue-700 px-3 sm:px-4 py-1 rounded-full shadow-md">
                         Soal <span id="current-question-number"></span>/<span id="total-questions"></span>
                     </div>
                 </div>
-                <div id="question-container" class="bg-white p-6 rounded-2xl mb-8 shadow-md border-t-4 border-blue-400">
-                    <p id="exam-question" class="text-xl font-medium mb-6 text-gray-800"></p>
-                    <div id="exam-options" class="space-y-4"></div>
+                <div id="question-container" class="bg-white p-4 sm:p-6 rounded-2xl mb-8 shadow-md border-t-4 border-blue-400">
+                    <p id="exam-question" class="text-lg sm:text-xl font-medium mb-6 text-gray-800"></p>
+                    <div id="exam-options" class="space-y-3 sm:space-y-4"></div>
                 </div>
-                <div class="flex justify-between gap-4">
-                    <button id="prev-question-btn" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50">← Sebelumnya</button>
-                    <button id="next-question-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105">Selanjutnya →</button>
-                    <button id="submit-exam-btn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl hidden transition duration-300 transform hover:scale-105">Kumpulkan Jawaban</button>
+                <!-- Tombol navigasi dibuat full-width di mobile untuk meningkatkan target sentuh -->
+                <div class="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
+                    <button id="prev-question-btn" class="w-full sm:flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105 disabled:opacity-50 text-sm sm:text-base">← Sebelumnya</button>
+                    <button id="next-question-btn" class="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105 text-sm sm:text-base">Selanjutnya →</button>
+                    <button id="submit-exam-btn" class="w-full sm:flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl hidden transition duration-300 transform hover:scale-105 text-sm sm:text-base">Kumpulkan Jawaban</button>
                 </div>
             </div>
 
             <!-- Tampilan Hasil Ujian -->
             <div id="result-view" class="view text-center">
-                <h1 class="text-3xl font-extrabold text-gray-700 mb-6">🏆 Hasil Ujian Anda</h1>
-                <div class="bg-green-100 border-t-8 border-green-500 rounded-b text-green-900 p-6 shadow-xl mb-6 transform transition-all duration-500 hover:scale-[1.01]" role="alert">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-700 mb-6">🏆 Hasil Ujian Anda</h1>
+                <div class="bg-green-100 border-t-8 border-green-500 rounded-b text-green-900 p-4 sm:p-6 shadow-xl mb-6 transform transition-all duration-500 hover:scale-[1.01]" role="alert">
                   <div class="flex flex-col items-center justify-center">
-                    <div class="py-1 mb-3"><svg class="fill-current h-12 w-12 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm-1-11V5h2v4h1v2h-1v2h-2v-2H8v-2h1z"/></svg></div>
-                    <p class="font-bold text-4xl mb-1" id="score-text"></p>
-                    <p class="text-md font-semibold" id="score-details"></p>
-                    <p class="text-sm text-gray-600 mt-2">Hasil Anda telah dicatat di Papan Peringkat global.</p>
+                    <div class="py-1 mb-3"><svg class="fill-current h-10 w-10 sm:h-12 sm:w-12 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm-1-11V5h2v4h1v2h-1v2h-2v-2H8v-2h1z"/></svg></div>
+                    <p class="font-bold text-3xl sm:text-4xl mb-1" id="score-text"></p>
+                    <p class="text-sm sm:text-md font-semibold" id="score-details"></p>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-2">Hasil Anda telah dicatat di Papan Peringkat global.</p>
                   </div>
                 </div>
                 
-                <button class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Lihat Papan Peringkat</button>
-                <button class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Selesai & Kembali</button>
+                <button class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 text-sm sm:text-base" onclick="showView('initial-view')">Lihat Papan Peringkat</button>
+                <button class="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 text-sm sm:text-base" onclick="showView('initial-view')">Selesai & Kembali</button>
             </div>
             
              <!-- Tampilan Papan Peringkat -->
             <div id="leaderboard-view" class="view">
-                <h1 class="text-3xl font-extrabold text-gray-700 mb-6 text-center">🥇 Papan Peringkat Global</h1>
-                <p class="text-center text-gray-500 mb-4">Ujian: <span id="leaderboard-password-display" class="font-extrabold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-md"></span></p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-700 mb-4 text-center">🥇 Papan Peringkat Global</h1>
+                <p class="text-center text-gray-500 mb-4 text-sm sm:text-base">Ujian: <span id="leaderboard-password-display" class="font-extrabold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-md"></span></p>
                 
-                <div id="leaderboard-loading" class="text-center p-4 text-gray-500 hidden">Memuat data peringkat...</div>
+                <div id="leaderboard-loading" class="text-center p-4 text-gray-500 hidden text-sm sm:text-base">Memuat data peringkat...</div>
 
+                <!-- Wrapper untuk membuat tabel bisa digulir horizontal di mobile -->
                 <div class="overflow-x-auto shadow-2xl rounded-xl border border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200 leaderboard-table">
                         <thead>
@@ -196,27 +207,28 @@
                         </tbody>
                     </table>
                 </div>
-                 <p id="no-results-message" class="text-center text-gray-500 mt-4 hidden">Belum ada hasil untuk ujian ini.</p>
-                <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
+                 <p id="no-results-message" class="text-center text-gray-500 mt-4 hidden text-sm sm:text-base">Belum ada hasil untuk ujian ini.</p>
+                <button class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-300 text-sm sm:text-base" onclick="showView('initial-view')">Kembali ke Menu Utama</button>
             </div>
 
             <!-- Modal Kustom (Pengganti alert dan confirm) -->
-            <div id="custom-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm">
-                <div class="relative mx-auto p-8 border w-full max-w-sm shadow-2xl rounded-2xl bg-white transform transition-all duration-300 scale-100">
+            <div id="custom-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 overflow-y-auto h-full w-full z-50 flex items-center justify-center backdrop-blur-sm p-4">
+                <div class="relative mx-auto p-6 sm:p-8 border w-full max-w-xs sm:max-w-sm shadow-2xl rounded-2xl bg-white transform transition-all duration-300 scale-100">
                     <div class="mt-3 text-center">
-                        <svg class="mx-auto h-12 w-12 text-blue-500" id="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <h3 class="text-xl font-bold text-gray-900 mt-3" id="modal-title">Pemberitahuan</h3>
+                        <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-blue-500" id="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mt-3" id="modal-title">Pemberitahuan</h3>
                         <div class="mt-2 px-1 py-3">
                             <p class="text-sm text-gray-600" id="modal-message"></p>
                         </div>
-                        <div class="items-center px-4 py-3 flex justify-end gap-3" id="modal-buttons">
-                            <button id="modal-cancel-btn" class="hidden px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-xl shadow-sm hover:bg-gray-400 focus:outline-none transition">
+                        <div class="items-center px-0 py-3 flex flex-col sm:flex-row justify-end gap-3" id="modal-buttons">
+                            <!-- Tombol diset full-width di mobile untuk target sentuh yang besar -->
+                            <button id="modal-cancel-btn" class="hidden w-full sm:w-auto px-4 py-2 bg-gray-300 text-gray-800 text-sm font-medium rounded-xl shadow-sm hover:bg-gray-400 focus:outline-none transition">
                                 Batal
                             </button>
-                            <button id="modal-confirm-btn" class="hidden px-4 py-2 bg-green-500 text-white text-base font-medium rounded-xl shadow-sm hover:bg-green-600 focus:outline-none transition">
+                            <button id="modal-confirm-btn" class="hidden w-full sm:w-auto px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-xl shadow-sm hover:bg-green-600 focus:outline-none transition">
                                 Ya, Lanjutkan
                             </button>
-                            <button id="modal-ok-btn" class="px-6 py-2 bg-blue-500 text-white text-base font-medium rounded-xl shadow-md hover:bg-blue-600 focus:outline-none transition">
+                            <button id="modal-ok-btn" class="w-full sm:w-auto px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-xl shadow-md hover:bg-blue-600 focus:outline-none transition">
                                 OK
                             </button>
                         </div>
@@ -305,16 +317,14 @@
         // =====================================================================
         
         let db;
-        let isSupabaseReady = true; // DIUBAH: Ditetapkan ke TRUE agar tidak ada error konsol.
+        let isSupabaseReady = true; 
         const { createClient } = supabase;
 
         // Inisialisasi klien Supabase
         db = createClient(SUPABASE_URL, SUPABASE_KEY);
         
         // Cek apakah kredensial masih placeholder
-        // DIHAPUS: console.error yang memicu masalah. Tetap tampilkan peringatan UI.
         if (SUPABASE_URL.includes('wkzufxtjtpnqbbecbjht') || SUPABASE_KEY.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')) {
-            // Tampilkan peringatan UI, tetapi biarkan isSupabaseReady = true (agar fungsi DB dapat dipanggil)
             document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('supabase-alert').classList.remove('hidden');
                 document.getElementById('access-leaderboard-btn').disabled = true; 
@@ -363,7 +373,6 @@
                 currentExamData = [];
                 userAnswers = {};
                 currentQuestionIndex = 0;
-                // currentExamPassword dan currentParticipantName tidak di-reset agar mudah cek peringkat setelah ujian
                 editingIndex = -1; 
                 renderQuestionsList(); 
                 resetQuestionForm(); 
@@ -423,10 +432,11 @@
 
             currentQuestions.forEach((q, index) => {
                 const listItem = document.createElement('li');
+                // Menggunakan flex-col di mobile dan flex-row di layar sm: ke atas
                 listItem.className = 'flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 my-2 bg-white rounded-lg border border-gray-100 shadow-sm';
                 listItem.innerHTML = `
-                    <span class="text-gray-700 font-medium flex-1 mb-2 sm:mb-0 mr-4 text-sm">
-                        <span class="font-bold text-indigo-600">${index + 1}.</span> ${q.question.substring(0, 80)}${q.question.length > 80 ? '...' : ''} <span class="text-xs text-green-600 font-semibold">(Jawab: ${q.correct})</span>
+                    <span class="text-gray-700 font-medium flex-1 mb-2 sm:mb-0 mr-4 text-xs sm:text-sm">
+                        <span class="font-bold text-indigo-600">${index + 1}.</span> ${q.question.substring(0, 50)}${q.question.length > 50 ? '...' : ''} <span class="text-xs text-green-600 font-semibold">(Jawab: ${q.correct})</span>
                     </span>
                     <div class="space-x-2 flex-shrink-0">
                         <button onclick="editQuestion(${index})" class="text-xs text-blue-500 hover:text-blue-700 font-semibold px-3 py-1 rounded-full border border-blue-500 hover:bg-blue-50 transition">Edit</button>
@@ -437,7 +447,7 @@
             });
             // Tampilkan pesan jika tidak ada soal
             if (currentQuestions.length === 0) {
-                 list.innerHTML = `<p class="text-center text-gray-500 py-4 italic">Belum ada soal ditambahkan.</p>`;
+                 list.innerHTML = `<p class="text-center text-gray-500 py-4 italic text-sm">Belum ada soal ditambahkan.</p>`;
             }
         }
         window.deleteQuestion = deleteQuestion; // Ekspos ke global scope
@@ -588,7 +598,7 @@
                 const optionHTML = `
                     <div>
                         <input type="radio" name="question${currentQuestionIndex}" id="${optionId}" value="${key}" class="radio-custom hidden" ${checked}>
-                        <label for="${optionId}" class="radio-label block w-full text-left p-3 rounded-xl cursor-pointer shadow-sm hover:bg-emerald-50 transition duration-200">
+                        <label for="${optionId}" class="radio-label block w-full text-left p-3 rounded-xl cursor-pointer shadow-sm hover:bg-emerald-50 transition duration-200 text-sm sm:text-base">
                             <span class="font-extrabold mr-3">${key}.</span> ${value}
                         </label>
                     </div>
@@ -610,6 +620,12 @@
             
             document.getElementById('next-question-btn').classList.toggle('hidden', currentQuestionIndex === exam.length - 1);
             document.getElementById('submit-exam-btn').classList.toggle('hidden', currentQuestionIndex !== exam.length - 1);
+            
+            // Scroll to the top of the question container on mobile after changing question
+            if (window.innerWidth < 640) { // Check if it's a small screen (Tailwind 'sm' breakpoint is 640px)
+                document.getElementById('take-exam-view').scrollTop = 0;
+                window.scrollTo(0, 0); 
+            }
         }
 
         // Navigasi
